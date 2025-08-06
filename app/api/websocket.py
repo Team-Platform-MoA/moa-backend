@@ -2,6 +2,9 @@ import json
 import uuid
 from fastapi import APIRouter, WebSocket, Depends
 from app.services.analysis import get_analysis_service, AnalysisService
+import logging 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["WebSocket"])
 
@@ -11,12 +14,12 @@ async def websocket_endpoint(
     analysis_service: AnalysisService = Depends(get_analysis_service)
 ):
     await websocket.accept()
-    print("📡 Client connected")
+    logger.info("📡 Client connected")
 
     try:
         while True:
             data = await websocket.receive_text()
-            print(f"🎤 Received: {data}")
+            logger.info(f"🎤 Received: {data}")
             
             try:
                 message_data = json.loads(data)
@@ -34,7 +37,7 @@ async def websocket_endpoint(
             await websocket.send_text(json.dumps(result, ensure_ascii=False))
 
     except Exception as e:
-        print("❌ Error:", e)
+        logger.error("❌ Error:", e)
     finally:
-        print("🔌 Client disconnected")
+        logger.info("🔌 Client disconnected")
         await websocket.close()

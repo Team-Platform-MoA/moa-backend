@@ -10,6 +10,10 @@ from app.core.config import settings
 from app.models.models import Conversation, User
 from app.utils.prompts import get_emotion_analysis_prompt
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 class AnalysisService:
@@ -54,7 +58,7 @@ class AnalysisService:
         except Exception:
             pass
         
-        print(f"AI 응답 원문: {response_text}")
+        logger.info(f"AI 응답 원문: {response_text}")
         return {
             "sentiment": "neutral",
             "score": 0.0,
@@ -79,14 +83,14 @@ class AnalysisService:
             if not response or not response.text:
                 raise Exception("AI 응답이 비어있습니다.")
             
-            print(f"AI 원본 응답: {response.text[:200]}...") 
+            logger.info(f"AI 원본 응답: {response.text[:200]}...") 
             
             result_data = self._extract_json_from_response(response.text)
             
             required_fields = ["sentiment", "score", "comfort_message"]
             for field in required_fields:
                 if field not in result_data:
-                    print(f"누락된 필드: {field}")
+                    logger.info(f"누락된 필드: {field}")
                     result_data[field] = self._get_default_value(field)
             
             if not user_id:
@@ -103,7 +107,7 @@ class AnalysisService:
             }
             
         except Exception as e:
-            print(f"분석 오류: {e}")
+            logger.error(f"분석 오류: {e}")
             if not user_id:
                 user_id = str(uuid.uuid4())
             
@@ -155,7 +159,7 @@ class AnalysisService:
             return conversation
             
         except Exception as e:
-            print(f"데이터 저장 오류: {e}")
+            logger.error(f"데이터 저장 오류: {e}")
             return None
 
 analysis_service = AnalysisService()
