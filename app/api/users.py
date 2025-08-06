@@ -14,6 +14,15 @@ async def create_user_onboarding(
     result = await user_service.create_user_onboarding(onboarding_data)
     return OnboardingResponse(**result)
 
+@router.get("/{user_id}/onboarding", response_model=OnboardingResponse)
+async def get_user_onboarding_status(
+    user_id: str,
+    user_service: UserService = Depends(get_user_service)
+):
+    """사용자 온보딩 상태 조회"""
+    result = await user_service.get_user_onboarding_status(user_id)
+    return OnboardingResponse(**result)
+
 @router.get("/{user_id}/history", response_model=UserHistoryResponse)
 async def get_user_history(
     user_id: str,
