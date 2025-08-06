@@ -1,14 +1,15 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import List
 from datetime import datetime
 
-class MessageRequest(BaseModel):
+class OnboardingResponse(BaseModel):
     user_id: str
+    name: str
+    age: int
+    dependent_type: str
+    dependent_age: int
+    is_onboarded: bool
     message: str
-
-class WebSocketMessage(BaseModel):
-    message: str
-    user_id: Optional[str] = None
 
 class AnalysisResponse(BaseModel):
     sentiment: str
@@ -29,4 +30,4 @@ class ConversationItem(BaseModel):
 class UserHistoryResponse(BaseModel):
     user_id: str
     total_count: int
-    conversations: List[ConversationItem]
+    conversations: List[ConversationItem] 
