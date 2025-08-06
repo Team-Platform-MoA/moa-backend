@@ -1,6 +1,7 @@
 from datetime import datetime
-from typing import Optional
 from beanie import Document
+from typing import Optional
+from .schemas import CaregiverType
 
 class Conversation(Document):
     """대화 기록 모델 - 사용자 메시지와 AI 응답을 하나로 관리"""
@@ -22,10 +23,14 @@ class Conversation(Document):
 class User(Document):
     """사용자 정보 모델"""
     user_id: str
-    name: Optional[str] = None
+    name: str
+    age: Optional[int] = None
+    caregiver_type: Optional[CaregiverType] = None  # Enum 타입으로 변경
+    caregiver_age: Optional[int] = None
     created_at: datetime = datetime.now()
     last_active: datetime = datetime.now()
-    total_conversations: int = 0  
+    total_conversations: int = 0
+    is_onboarded: bool = False  # 온보딩 완료 여부
     
     class Settings:
         name = "users"
