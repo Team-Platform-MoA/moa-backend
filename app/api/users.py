@@ -1,8 +1,17 @@
 from fastapi import APIRouter, Depends
-from app.models.schemas import UserHistoryResponse
+from app.models.schemas import UserHistoryResponse, OnboardingRequest, OnboardingResponse
 from app.services.user import get_user_service, UserService
 
 router = APIRouter(prefix="/users", tags=["사용자"])
+
+@router.post("/onboarding", response_model=OnboardingResponse)
+async def create_user_onboarding(
+    onboarding_data: OnboardingRequest,
+    user_service: UserService = Depends(get_user_service)
+):
+    """사용자 온보딩 정보 저장"""
+    result = await user_service.create_user_onboarding(onboarding_data)
+    return OnboardingResponse(**result)
 
 @router.get("/{user_id}/history", response_model=UserHistoryResponse)
 async def get_user_history(
