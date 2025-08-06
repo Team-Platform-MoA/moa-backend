@@ -1,7 +1,7 @@
 from enum import Enum
 
-class CaregiverType(str, Enum):
-    """부양자 유형 Enum"""
+class DependentType(str, Enum):
+    """사용자가 부양해야 할 가족의 유형 Enum"""
     MOTHER = "어머니"
     FATHER = "아버지"
     HUSBAND = "남편"

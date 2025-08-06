@@ -28,8 +28,8 @@ class UserService:
                 user_id=user_id,
                 name=onboarding_data.name,
                 age=onboarding_data.age,
-                caregiver_type=onboarding_data.caregiver_type,  # Enum 직접 저장
-                caregiver_age=onboarding_data.caregiver_age,
+                dependent_type=onboarding_data.dependent_type,  # Enum 직접 저장
+                dependent_age=onboarding_data.dependent_age,
                 is_onboarded=True,
                 created_at=datetime.now(),
                 last_active=datetime.now()
@@ -41,8 +41,8 @@ class UserService:
                 "user_id": user_id,
                 "name": user.name,
                 "age": user.age,
-                "caregiver_type": user.caregiver_type.value if user.caregiver_type else None,  # API 응답용으로 문자열 변환
-                "caregiver_age": user.caregiver_age,
+                "dependent_type": user.dependent_type.value if user.dependent_type else None,  # API 응답용으로 문자열 변환
+                "dependent_age": user.dependent_age,
                 "is_onboarded": user.is_onboarded,
                 "message": "온보딩이 성공적으로 완료되었습니다."
             }
@@ -69,8 +69,8 @@ class UserService:
                 "user_id": user.user_id,
                 "name": user.name,
                 "age": user.age,
-                "caregiver_type": user.caregiver_type.value if user.caregiver_type else None,  # API 응답용으로 문자열 변환
-                "caregiver_age": user.caregiver_age,
+                "dependent_type": user.dependent_type.value if user.dependent_type else None,  # API 응답용으로 문자열 변환
+                "dependent_age": user.dependent_age,
                 "is_onboarded": user.is_onboarded,
                 "message": "온보딩 완료" if user.is_onboarded else "온보딩 미완료"
             }

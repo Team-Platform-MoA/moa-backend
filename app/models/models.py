@@ -1,7 +1,7 @@
 from datetime import datetime
 from beanie import Document
 from typing import Optional
-from app.schemas.common import CaregiverType
+from app.schemas.common import DependentType
 
 class Conversation(Document):
     """대화 기록 모델 - 사용자 메시지와 AI 응답을 하나로 관리"""
@@ -25,8 +25,8 @@ class User(Document):
     user_id: str
     name: str
     age: Optional[int] = None
-    caregiver_type: Optional[CaregiverType] = None  # Enum 타입으로 변경
-    caregiver_age: Optional[int] = None
+    dependent_type: Optional[DependentType] = None  # Enum 타입으로 변경
+    dependent_age: Optional[int] = None
     created_at: datetime = datetime.now()
     last_active: datetime = datetime.now()
     total_conversations: int = 0

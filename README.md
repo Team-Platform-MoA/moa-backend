@@ -27,8 +27,8 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - `user_id`: 사용자 고유 ID (UUID)
 - `name`: 사용자 이름
 - `age`: 사용자 나이
-- `caregiver_type`: 부양자 유형 (Enum: 어머니, 아버지, 남편, 아내, 친척, 시부모님)
-- `caregiver_age`: 부양자 나이
+- `dependent_type`: 부양자 유형 (Enum: 어머니, 아버지, 남편, 아내, 친척, 시부모님)
+- `dependent_age`: 부양자 나이
 - `is_onboarded`: 온보딩 완료 여부
 - `created_at`: 생성 시간
 - `last_active`: 마지막 활동 시간

@@ -6,8 +6,8 @@ class OnboardingResponse(BaseModel):
     user_id: str
     name: str
     age: int
-    caregiver_type: str
-    caregiver_age: int
+    dependent_type: str
+    dependent_age: int
     is_onboarded: bool
     message: str
 
