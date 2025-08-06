@@ -1,7 +1,7 @@
 from datetime import datetime
 from beanie import Document
 from typing import Optional
-from .schemas import CaregiverType
+from app.schemas.common import CaregiverType
 
 class Conversation(Document):
     """대화 기록 모델 - 사용자 메시지와 AI 응답을 하나로 관리"""

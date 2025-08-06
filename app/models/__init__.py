@@ -3,6 +3,5 @@
 """
 
 from .models import Conversation, User
-from .schemas import CaregiverType
 
-__all__ = ["Conversation", "User", "CaregiverType"]
+__all__ = ["Conversation", "User"]

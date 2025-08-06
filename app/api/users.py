@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
-from app.models.schemas import UserHistoryResponse, OnboardingRequest, OnboardingResponse
+from app.schemas.responses import UserHistoryResponse, OnboardingResponse
+from app.schemas.requests import OnboardingRequest
 from app.services.user import get_user_service, UserService
 
 router = APIRouter(prefix="/users", tags=["사용자"])

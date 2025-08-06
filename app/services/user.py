@@ -4,7 +4,7 @@ from datetime import datetime
 import uuid
 
 from app.models.models import Conversation, User
-from app.models.schemas import OnboardingRequest
+from app.schemas.requests import OnboardingRequest
 
 class UserService:
     """사용자 관련 서비스"""
