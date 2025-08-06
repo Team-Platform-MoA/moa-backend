@@ -48,6 +48,36 @@ class UserService:
             }
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"온보딩 처리 중 오류가 발생했습니다: {str(e)}")
+
+    async def get_user_onboarding_status(self, user_id: str) -> Dict:
+        """
+        사용자 온보딩 상태 조회
+
+        Args:
+            user_id (str): 사용자 ID
+
+        Returns:
+            Dict: 사용자 온보딩 정보
+        """
+        try:
+            user = await User.find_one(User.user_id == user_id)
+
+            if not user:
+                raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+
+            return {
+                "user_id": user.user_id,
+                "name": user.name,
+                "age": user.age,
+                "caregiver_type": user.caregiver_type.value if user.caregiver_type else None,  # API 응답용으로 문자열 변환
+                "caregiver_age": user.caregiver_age,
+                "is_onboarded": user.is_onboarded,
+                "message": "온보딩 완료" if user.is_onboarded else "온보딩 미완료"
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"온보딩 상태 조회 중 오류가 발생했습니다: {str(e)}")
     
     async def get_user_history(self, user_id: str, limit: int = 10) -> Dict:
         """
