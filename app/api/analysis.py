@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
-from app.models.schemas import MessageRequest, AnalysisResponse
+
+from app.schemas import AnalysisResponse, MessageRequest
 from app.services.analysis import get_analysis_service, AnalysisService
 
 router = APIRouter(prefix="/analysis", tags=["분석"])
