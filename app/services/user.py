@@ -1,48 +1,90 @@
-from typing import Dict
-from fastapi import HTTPException
-from datetime import datetime
 import uuid
-
-from app.models.models import Conversation, User
-from app.schemas.requests import OnboardingRequest
+from datetime import datetime
+from typing import Dict, Optional
+from fastapi import HTTPException
+from app.models.models import User, Conversation
+from app.schemas.requests import CompleteOnboardingRequest
+from app.schemas.common import Gender, DementiaStage, FamilyRelationship
 
 class UserService:
     """사용자 관련 서비스"""
-    
-    async def create_user_onboarding(self, onboarding_data: OnboardingRequest) -> Dict:
+
+    def _safe_enum_value(self, enum_value, field_name: str) -> str:
         """
-        사용자 온보딩 정보 저장
+        Enum 값을 안전하게 추출하는 헬퍼 함수
         
         Args:
-            onboarding_data (OnboardingRequest): 온보딩 데이터
+            enum_value: Enum 인스턴스
+            field_name: 필드명 (에러 메시지용)
             
         Returns:
-            Dict: 생성된 사용자 정보
+            str: Enum 값
+            
+        Raises:
+            HTTPException: Enum이 None이거나 잘못된 경우
+        """
+        if enum_value is None:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"데이터 검증 실패: {field_name}이(가) 설정되지 않았습니다."
+            )
+        
+        try:
+            return enum_value.value
+        except AttributeError:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"데이터 검증 실패: {field_name}이(가) 올바른 Enum 타입이 아닙니다."
+            )
+
+    async def create_complete_onboarding(self, onboarding_data: CompleteOnboardingRequest) -> Dict:
+        """
+        완전한 온보딩 정보 저장 (사용자 + 가족 정보)
+
+        Args:
+            onboarding_data (CompleteOnboardingRequest): 온보딩 데이터
+
+        Returns:
+            Dict: 온보딩 완료 정보
         """
         try:
             # 새로운 사용자 ID 생성
             user_id = str(uuid.uuid4())
             
-            # 사용자 정보 생성
+            # 사용자 정보 생성 (부양자 + 가족 정보 포함)
             user = User(
                 user_id=user_id,
-                name=onboarding_data.name,
-                age=onboarding_data.age,
-                dependent_type=onboarding_data.dependent_type,  # Enum 직접 저장
-                dependent_age=onboarding_data.dependent_age,
+                name=onboarding_data.user_name,
+                birth_year=onboarding_data.user_birth_year,
+                gender=onboarding_data.user_gender,
+                family_relationship=onboarding_data.family_relationship,
+                daily_care_hours=onboarding_data.daily_care_hours,
+                # 부양받는 가족 정보
+                family_member_nickname=onboarding_data.family_member.nickname,
+                family_member_birth_year=onboarding_data.family_member.birth_year,
+                family_member_gender=onboarding_data.family_member.gender,
+                family_member_dementia_stage=onboarding_data.family_member.dementia_stage,
                 is_onboarded=True,
                 created_at=datetime.now(),
                 last_active=datetime.now()
             )
             
+            # 데이터베이스에 저장
             await user.insert()
             
             return {
                 "user_id": user_id,
-                "name": user.name,
-                "age": user.age,
-                "dependent_type": user.dependent_type.value if user.dependent_type else None,  # API 응답용으로 문자열 변환
-                "dependent_age": user.dependent_age,
+                "user_name": user.name,
+                "user_birth_year": user.birth_year,
+                "user_gender": self._safe_enum_value(user.gender, "사용자 성별"),
+                "family_relationship": self._safe_enum_value(user.family_relationship, "가족 관계"),
+                "daily_care_hours": user.daily_care_hours,
+                "family_member": {
+                    "nickname": user.family_member_nickname,
+                    "birth_year": user.family_member_birth_year,
+                    "gender": self._safe_enum_value(user.family_member_gender, "가족 성별"),
+                    "dementia_stage": self._safe_enum_value(user.family_member_dementia_stage, "치매 정도")
+                },
                 "is_onboarded": user.is_onboarded,
                 "message": "온보딩이 성공적으로 완료되었습니다."
             }
@@ -65,15 +107,24 @@ class UserService:
             if not user:
                 raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
 
-            return {
+            response = {
                 "user_id": user.user_id,
-                "name": user.name,
-                "age": user.age,
-                "dependent_type": user.dependent_type.value if user.dependent_type else None,  # API 응답용으로 문자열 변환
-                "dependent_age": user.dependent_age,
+                "user_name": user.name,
+                "user_birth_year": user.birth_year,
+                "user_gender": self._safe_enum_value(user.gender, "사용자 성별"),
+                "family_relationship": self._safe_enum_value(user.family_relationship, "가족 관계"),
+                "daily_care_hours": user.daily_care_hours,
+                "family_member": {
+                    "nickname": user.family_member_nickname,
+                    "birth_year": user.family_member_birth_year,
+                    "gender": self._safe_enum_value(user.family_member_gender, "가족 성별"),
+                    "dementia_stage": self._safe_enum_value(user.family_member_dementia_stage, "치매 정도")
+                },
                 "is_onboarded": user.is_onboarded,
                 "message": "온보딩 완료" if user.is_onboarded else "온보딩 미완료"
             }
+            
+            return response
         except HTTPException:
             raise
         except Exception as e:

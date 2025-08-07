@@ -26,13 +26,20 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ### User 모델
 - `user_id`: 사용자 고유 ID (UUID)
 - `name`: 사용자 이름
-- `age`: 사용자 나이
-- `dependent_type`: 부양자 유형 (Enum: 어머니, 아버지, 남편, 아내, 친척, 시부모님)
-- `dependent_age`: 부양자 나이
+- `birth_year`: 사용자 출생년도
+- `gender`: 사용자 성별 (Enum: 여성, 남성, 기타)
+- `family_relationship`: 가족과의 관계 (Enum: 자녀, 배우자, 며느리/사위, 손주)
+- `daily_care_hours`: 하루 돌봄 시간 (시간)
+- `family_member_nickname`: 부양받는 가족 애칭
+- `family_member_birth_year`: 부양받는 가족 출생년도
+- `family_member_gender`: 부양받는 가족 성별
+- `family_member_dementia_stage`: 부양받는 가족 치매 정도
 - `is_onboarded`: 온보딩 완료 여부
 - `created_at`: 생성 시간
 - `last_active`: 마지막 활동 시간
 - `total_conversations`: 총 대화 수
+
+
 
 ### Conversation 모델
 - `user_id`: 사용자 ID
@@ -47,7 +54,7 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ## API 리스트
 
 ### 사용자 관리
-- `POST /api/users/onboarding` - 사용자 온보딩 정보 저장
+- `POST /api/users/onboarding` - 완전한 온보딩 정보 저장 (사용자 + 가족 정보)
 - `GET /api/users/{user_id}/onboarding` - 사용자 온보딩 상태 조회
 - `GET /api/users/{user_id}/history` - 사용자 대화 기록 조회
 
