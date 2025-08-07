@@ -1,12 +1,41 @@
 import uuid
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 from fastapi import HTTPException
 from app.models.models import User, Conversation
 from app.schemas.requests import CompleteOnboardingRequest
+from app.schemas.common import Gender, DementiaStage, FamilyRelationship
 
 class UserService:
     """사용자 관련 서비스"""
+
+    def _safe_enum_value(self, enum_value, field_name: str) -> str:
+        """
+        Enum 값을 안전하게 추출하는 헬퍼 함수
+        
+        Args:
+            enum_value: Enum 인스턴스
+            field_name: 필드명 (에러 메시지용)
+            
+        Returns:
+            str: Enum 값
+            
+        Raises:
+            HTTPException: Enum이 None이거나 잘못된 경우
+        """
+        if enum_value is None:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"데이터 검증 실패: {field_name}이(가) 설정되지 않았습니다."
+            )
+        
+        try:
+            return enum_value.value
+        except AttributeError:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"데이터 검증 실패: {field_name}이(가) 올바른 Enum 타입이 아닙니다."
+            )
 
     async def create_complete_onboarding(self, onboarding_data: CompleteOnboardingRequest) -> Dict:
         """
@@ -47,14 +76,14 @@ class UserService:
                 "user_id": user_id,
                 "user_name": user.name,
                 "user_birth_year": user.birth_year,
-                "user_gender": user.gender.value,
-                "family_relationship": user.family_relationship.value,
+                "user_gender": self._safe_enum_value(user.gender, "사용자 성별"),
+                "family_relationship": self._safe_enum_value(user.family_relationship, "가족 관계"),
                 "daily_care_hours": user.daily_care_hours,
                 "family_member": {
                     "nickname": user.family_member_nickname,
                     "birth_year": user.family_member_birth_year,
-                    "gender": user.family_member_gender.value,
-                    "dementia_stage": user.family_member_dementia_stage.value
+                    "gender": self._safe_enum_value(user.family_member_gender, "가족 성별"),
+                    "dementia_stage": self._safe_enum_value(user.family_member_dementia_stage, "치매 정도")
                 },
                 "is_onboarded": user.is_onboarded,
                 "message": "온보딩이 성공적으로 완료되었습니다."
@@ -82,14 +111,14 @@ class UserService:
                 "user_id": user.user_id,
                 "user_name": user.name,
                 "user_birth_year": user.birth_year,
-                "user_gender": user.gender.value,
-                "family_relationship": user.family_relationship.value,
+                "user_gender": self._safe_enum_value(user.gender, "사용자 성별"),
+                "family_relationship": self._safe_enum_value(user.family_relationship, "가족 관계"),
                 "daily_care_hours": user.daily_care_hours,
                 "family_member": {
                     "nickname": user.family_member_nickname,
                     "birth_year": user.family_member_birth_year,
-                    "gender": user.family_member_gender.value,
-                    "dementia_stage": user.family_member_dementia_stage.value
+                    "gender": self._safe_enum_value(user.family_member_gender, "가족 성별"),
+                    "dementia_stage": self._safe_enum_value(user.family_member_dementia_stage, "치매 정도")
                 },
                 "is_onboarded": user.is_onboarded,
                 "message": "온보딩 완료" if user.is_onboarded else "온보딩 미완료"
