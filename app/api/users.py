@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from app.services.user import get_user_service, UserService
 from app.schemas.requests import CompleteOnboardingRequest
 from app.schemas.responses import OnboardingResponse, UserHistoryResponse
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
-@router.post("/onboarding", response_model=OnboardingResponse)
+@router.post("/onboarding", response_model=OnboardingResponse, status_code=status.HTTP_201_CREATED)
 async def create_onboarding(
     onboarding_data: CompleteOnboardingRequest,
     user_service: UserService = Depends(get_user_service)
