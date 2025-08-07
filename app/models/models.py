@@ -29,7 +29,7 @@ class User(Document):
     daily_care_hours: int
     
     # 부양받는 가족 정보
-    family_member_name: str
+    family_member_nickname: str
     family_member_birth_year: int
     family_member_gender: Gender
     family_member_dementia_stage: DementiaStage

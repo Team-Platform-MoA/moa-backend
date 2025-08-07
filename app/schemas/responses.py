@@ -4,7 +4,7 @@ from typing import List
 
 class FamilyMemberResponse(BaseModel):
     """가족 구성원 응답"""
-    name: str
+    nickname: str
     birth_year: int
     gender: str
     dementia_stage: str

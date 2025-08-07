@@ -30,7 +30,7 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - `gender`: 사용자 성별 (Enum: 여성, 남성, 기타)
 - `family_relationship`: 가족과의 관계 (Enum: 자녀, 배우자, 며느리/사위, 손주)
 - `daily_care_hours`: 하루 돌봄 시간 (시간)
-- `family_member_name`: 부양받는 가족 이름
+- `family_member_nickname`: 부양받는 가족 애칭
 - `family_member_birth_year`: 부양받는 가족 출생년도
 - `family_member_gender`: 부양받는 가족 성별
 - `family_member_dementia_stage`: 부양받는 가족 치매 정도

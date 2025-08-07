@@ -4,7 +4,7 @@ from .common import Gender, DementiaStage, FamilyRelationship
 
 class FamilyMemberInfo(BaseModel):
     """가족 구성원 정보"""
-    name: str = Field(..., min_length=1, max_length=50, description="가족 구성원 이름")
+    nickname: str = Field(..., min_length=1, max_length=50, description="부양자가 부르고 싶은 애칭")
     birth_year: int = Field(..., ge=1900, le=2024, description="출생년도 (4자리)")
     gender: Gender = Field(..., description="성별")
     dementia_stage: DementiaStage = Field(..., description="치매 정도")

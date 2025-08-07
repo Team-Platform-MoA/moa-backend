@@ -31,7 +31,7 @@ class UserService:
                 family_relationship=onboarding_data.family_relationship,
                 daily_care_hours=onboarding_data.daily_care_hours,
                 # 부양받는 가족 정보
-                family_member_name=onboarding_data.family_member.name,
+                family_member_nickname=onboarding_data.family_member.nickname,
                 family_member_birth_year=onboarding_data.family_member.birth_year,
                 family_member_gender=onboarding_data.family_member.gender,
                 family_member_dementia_stage=onboarding_data.family_member.dementia_stage,
@@ -51,7 +51,7 @@ class UserService:
                 "family_relationship": user.family_relationship.value,
                 "daily_care_hours": user.daily_care_hours,
                 "family_member": {
-                    "name": user.family_member_name,
+                    "nickname": user.family_member_nickname,
                     "birth_year": user.family_member_birth_year,
                     "gender": user.family_member_gender.value,
                     "dementia_stage": user.family_member_dementia_stage.value
@@ -86,7 +86,7 @@ class UserService:
                 "family_relationship": user.family_relationship.value,
                 "daily_care_hours": user.daily_care_hours,
                 "family_member": {
-                    "name": user.family_member_name,
+                    "nickname": user.family_member_nickname,
                     "birth_year": user.family_member_birth_year,
                     "gender": user.family_member_gender.value,
                     "dementia_stage": user.family_member_dementia_stage.value
