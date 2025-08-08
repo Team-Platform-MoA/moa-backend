@@ -1,5 +1,5 @@
 """
-Gemini AI 클라이언트 구현
+OpenAI GPT 클라이언트 구현
 """
 import json
 import re
@@ -7,7 +7,7 @@ import logging
 import asyncio
 from typing import Dict, Any
 
-import google.generativeai as genai
+from openai import OpenAI
 
 from app.core.config import settings
 from app.external.ai.base import AIClient
@@ -15,17 +15,16 @@ from app.external.ai.base import AIClient
 logger = logging.getLogger(__name__)
 
 
-class GeminiClient(AIClient):
-    """Gemini AI 클라이언트"""
+class OpenAIClient(AIClient):
+    """OpenAI GPT 클라이언트"""
     
     def __init__(self):
-        """Gemini 클라이언트 초기화"""
+        """OpenAI 클라이언트 초기화"""
         try:
-            genai.configure(api_key=settings.GEMINI_API_KEY)
-            self.model = genai.GenerativeModel("gemini-1.5-pro")
+            self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
             self._available = True
         except Exception as e:
-            logger.error(f"Gemini 클라이언트 초기화 실패: {e}")
+            logger.error(f"OpenAI 클라이언트 초기화 실패: {e}")
             self._available = False
     
     async def generate_content(self, prompt: str) -> str:
@@ -40,28 +39,37 @@ class GeminiClient(AIClient):
         """
         try:
             if not self.is_available():
-                raise Exception("Gemini 서비스를 사용할 수 없습니다.")
+                raise Exception("OpenAI 서비스를 사용할 수 없습니다.")
             
             loop = asyncio.get_running_loop()
             
             # 동기 호출을 executor로 비동기화
             response = await loop.run_in_executor(None, self._sync_generate_content, prompt)
             
-            if not response or not response.text:
+            if not response or not response.choices:
                 raise Exception("AI 응답이 비어있습니다.")
             
-            logger.info(f"Gemini 응답 생성 완료: {len(response.text)} 문자")
-            return response.text
+            response_text = response.choices[0].message.content
+            logger.info(f"OpenAI 응답 생성 완료: {len(response_text)} 문자")
+            return response_text
             
         except Exception as e:
-            logger.error(f"Gemini 응답 생성 실패: {e}")
+            logger.error(f"OpenAI 응답 생성 실패: {e}")
             raise
     
     def _sync_generate_content(self, prompt: str):
-        """동기적으로 Gemini API를 호출합니다."""
-        print("🔵 Gemini generate_content 시작")
-        response = self.model.generate_content(prompt)
-        print("🟢 Gemini 응답 수신 완료")
+        """동기적으로 OpenAI API를 호출합니다."""
+        print("🔵 OpenAI generate_content 시작")
+        response = self.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that responds in JSON format when requested."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1000
+        )
+        print("🟢 OpenAI 응답 수신 완료")
         return response
     
     async def generate_structured_content(self, prompt: str, expected_format: str = "json") -> Dict[str, Any]:
@@ -85,12 +93,12 @@ class GeminiClient(AIClient):
     
     def is_available(self) -> bool:
         """
-        Gemini 서비스 사용 가능 여부를 확인합니다.
+        OpenAI 서비스 사용 가능 여부를 확인합니다.
         
         Returns:
             bool: 사용 가능 여부
         """
-        return self._available and bool(settings.GEMINI_API_KEY)
+        return self._available and bool(settings.OPENAI_API_KEY)
     
     def _extract_json_from_response(self, response_text: str) -> Dict[str, Any]:
         """
