@@ -15,7 +15,6 @@ import sys
 sys.path.append('.')
 
 from app.external.ai.client import get_ai_client
-from app.prompts.emotion import EmotionAnalysisPrompt
 from app.prompts.report import EmotionReportPrompt
 
 
