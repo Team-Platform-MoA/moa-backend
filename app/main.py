@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.database import connect_to_mongo, close_mongo_connection
-from app.api import analysis, users, websocket
+from app.api import analysis, users, websocket, answer
 
 import app.core.logger
 
@@ -34,6 +34,7 @@ def create_app() -> FastAPI:
 
     app.include_router(analysis.router, prefix="/api")
     app.include_router(users.router, prefix="/api")
+    app.include_router(answer.router, prefix="/api")
     app.include_router(websocket.router)
 
     @app.get("/")
