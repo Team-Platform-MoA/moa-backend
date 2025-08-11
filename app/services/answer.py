@@ -156,7 +156,7 @@ class AnswerService:
             for question_num, audio_uri in audio_uris:
                 try:
                     question_text = self.question_service.get_question_text(question_num)
-                    transcribed_text = await self.speech_to_text_service.transcribe_audio(audio_uri)
+                    transcribed_text = self.speech_to_text_service.transcribe_audio(audio_uri)
                     
                     if question_text and transcribed_text:
                         message_parts.extend([

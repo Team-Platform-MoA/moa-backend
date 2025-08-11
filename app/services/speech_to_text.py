@@ -20,7 +20,7 @@ class SpeechToTextService:
         self.storage_client = storage.Client()
         self.bucket_name = settings.GCP_BUCKET_NAME
 
-    async def transcribe_audio(self, gcs_uri: str) -> str:
+    def transcribe_audio(self, gcs_uri: str) -> str:
         """GCS에 저장된 오디오 파일을 텍스트로 변환"""
         try:
             logger.info(f"🎤 음성 변환 시작: {gcs_uri}")
