@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from beanie import Document
+from pydantic import Field
 from app.schemas.common import Gender, DementiaStage, FamilyRelationship
 from app.utils.common import get_korea_now
 from app.core.constants import Defaults
@@ -11,12 +12,12 @@ class Conversation(Document):
     conversation_date: str
     
     user_message: str
-    user_timestamp: datetime = get_korea_now()
+    user_timestamp: datetime = Field(default_factory=get_korea_now)
     
     ai_sentiment: str
     ai_score: float
     ai_comfort_message: str
-    ai_timestamp: datetime = get_korea_now()
+    ai_timestamp: datetime = Field(default_factory=get_korea_now)
     
     is_processed: bool = Defaults.CONVERSATION_PROCESSED_STATUS
     
@@ -41,8 +42,8 @@ class User(Document):
     family_member_gender: Gender
     family_member_dementia_stage: DementiaStage
     
-    created_at: datetime = get_korea_now()
-    last_active: datetime = get_korea_now()
+    created_at: datetime = Field(default_factory=get_korea_now)
+    last_active: datetime = Field(default_factory=get_korea_now)
     total_conversations: int = Defaults.USER_CONVERSATIONS_COUNT
     is_onboarded: bool = Defaults.USER_ONBOARDED_STATUS
     
