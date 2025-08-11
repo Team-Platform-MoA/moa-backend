@@ -30,10 +30,10 @@ class AnalysisResponse(BaseModel):
 class AudioAnswerResponse(BaseModel):
     """오디오 답변 처리 응답"""
     success: bool
-    conversation_id: str = None
+    conversation_id: Optional[str] = None
     question_number: int
-    question_text: str = None
-    message: str = None
+    question_text: Optional[str] = None
+    message: Optional[str] = None
     
     audio_uri_1: Optional[str] = None
     audio_uri_2: Optional[str] = None
@@ -42,7 +42,7 @@ class AudioAnswerResponse(BaseModel):
     user_message: Optional[str] = None
     
     user_id: str
-    error: str = None
+    error: Optional[str] = None
 
 class ConversationItem(BaseModel):
     """대화 기록 아이템"""
