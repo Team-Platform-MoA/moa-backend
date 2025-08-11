@@ -40,7 +40,10 @@ class GCPStorageService:
                 temp_file_path = temp_file.name
             
             blob = self.bucket.blob(unique_filename)
-            blob.upload_from_filename(temp_file_path)
+            blob.upload_from_filename(
+                temp_file_path,
+                content_type=audio_file.content_type
+            )
             
             os.unlink(temp_file_path)
 
