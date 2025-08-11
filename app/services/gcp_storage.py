@@ -1,7 +1,6 @@
 import os
 import uuid
 import logging
-from typing import Optional
 from google.cloud import storage
 from fastapi import UploadFile
 import tempfile
