@@ -1,9 +1,9 @@
 import os
 import uuid
 import logging
+import asyncio
 from google.cloud import storage
 from fastapi import UploadFile
-import tempfile
 
 from app.core.config import settings
 
@@ -33,18 +33,14 @@ class GCPStorageService:
             file_extension = audio_file.filename.split('.')[-1] if '.' in audio_file.filename else 'wav'
             unique_filename = f"audio/{user_id}/{uuid.uuid4()}.{file_extension}"
             
-            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_extension}") as temp_file:
-                content = await audio_file.read()
-                temp_file.write(content)
-                temp_file_path = temp_file.name
-            
+            # 파일 전체를 메모리에 올리지 않고 스트리밍 업로드
+            audio_file.file.seek(0)
             blob = self.bucket.blob(unique_filename)
-            blob.upload_from_filename(
-                temp_file_path,
-                content_type=audio_file.content_type
+            await asyncio.to_thread(
+                blob.upload_from_file,
+                audio_file.file,
+                content_type=audio_file.content_type,
             )
-            
-            os.unlink(temp_file_path)
 
             gcs_uri = f"gs://{self.bucket_name}/{unique_filename}"
             logger.info(f"✅ 오디오 파일 업로드 완료: {gcs_uri}")
@@ -53,11 +49,6 @@ class GCPStorageService:
             
         except Exception as e:
             logger.error(f"❌ 오디오 파일 업로드 실패: {e}")
-            if 'temp_file_path' in locals():
-                try:
-                    os.unlink(temp_file_path)
-                except:
-                    pass
             raise e
     
     def get_public_url(self, gcs_uri: str) -> str:
