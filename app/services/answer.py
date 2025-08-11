@@ -92,15 +92,13 @@ class AnswerService:
             )
     
     async def _ensure_user_exists(self, user_id: str) -> User:
-        """사용자가 존재하지 않으면 생성"""
+        """사용자가 존재하는지 확인하고, 없으면 오류 발생"""
         user = await User.find_one(User.user_id == user_id)
         if not user:
-            user = User(
-                user_id=user_id,
-                total_conversations=Defaults.USER_CONVERSATIONS_COUNT
+            raise HTTPException(
+                status_code=404,
+                detail=ErrorMessages.USER_NOT_FOUND
             )
-            await user.save()
-            logger.info(format_message(Messages.USER_CREATED, user_id=user_id))
         return user
     
     async def _find_or_create_conversation(self, user_id: str) -> Conversation:
