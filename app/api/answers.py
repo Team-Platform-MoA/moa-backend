@@ -10,17 +10,28 @@ router = APIRouter(prefix="/answers", tags=["answers"])
 
 @router.get("/questions")
 async def get_questions(
+    user_id: str = None,  
     question_service: QuestionService = Depends(get_question_service)
 ):
     """전체 질문 목록 조회"""
+    user = None
+    if user_id:
+        from app.models.models import User
+        user = await User.find_one(User.user_id == user_id)
+    
+    personalized_questions = {}
+    for question_number in range(1, question_service.get_total_questions() + 1):
+        personalized_questions[question_number] = question_service.get_question_text(question_number, user)
+    
     return {
         "total_questions": question_service.get_total_questions(),
-        "questions": question_service.get_all_questions()
+        "questions": personalized_questions
     }
 
 @router.get("/questions/{question_number}")
 async def get_question(
     question_number: int,
+    user_id: str = None, 
     question_service: QuestionService = Depends(get_question_service)
 ):
     """특정 질문 조회"""
@@ -30,9 +41,14 @@ async def get_question(
             detail=format_message(ErrorMessages.QUESTION_NOT_FOUND, question_number=question_number)
         )
     
+    user = None
+    if user_id:
+        from app.models.models import User
+        user = await User.find_one(User.user_id == user_id)
+    
     return {
         "question_number": question_number,
-        "question_text": question_service.get_question_text(question_number)
+        "question_text": question_service.get_question_text(question_number, user)
     }
 
 @router.post("/audio", response_model=AudioAnswerResponse)

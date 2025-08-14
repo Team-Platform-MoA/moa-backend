@@ -47,15 +47,15 @@ class AnswerService:
                     )
                 )
             
-            question_text = self.question_service.get_question_text(question_number)
-            await self._ensure_user_exists(user_id)
+            user = await self._ensure_user_exists(user_id)
+            question_text = self.question_service.get_question_text(question_number, user)
             
             gcs_uri = await self.gcp_storage_service.upload_audio_file(audio_file, user_id)
             conversation = await self._find_or_create_conversation(user_id)
             await self._save_audio_uri(conversation, question_number, gcs_uri)
             
             if question_number == FINAL_QUESTION_NUMBER:
-                await self._process_all_audio_to_text(conversation)
+                await self._process_all_audio_to_text(conversation, user)
                 
                 conversation = await Conversation.find_one(
                     Conversation.user_id == user_id,
@@ -196,7 +196,7 @@ class AnswerService:
             logger.error(format_message(Messages.AUDIO_URI_SAVE_FAILED, error=e))
             raise e
     
-    async def _process_all_audio_to_text(self, conversation: Conversation):
+    async def _process_all_audio_to_text(self, conversation: Conversation, user: User):
         """모든 오디오 파일을 STT 처리하여 통합된 텍스트로 변환"""
         try:
             logger.info(Messages.STT_START)
@@ -213,7 +213,7 @@ class AnswerService:
             
             for question_num, audio_uri in audio_uris:
                 try:
-                    question_text = self.question_service.get_question_text(question_num)
+                    question_text = self.question_service.get_question_text(question_num, user)
                     transcribed_text = self.speech_to_text_service.transcribe_audio(audio_uri)
                     
                     if question_text and transcribed_text:
@@ -230,7 +230,7 @@ class AnswerService:
                     
                 except Exception as e:
                     logger.error(format_message(Messages.STT_QUESTION_FAILED, question_num=question_num, error=e))
-                    question_text = self.question_service.get_question_text(question_num)
+                    question_text = self.question_service.get_question_text(question_num, user)
                     if question_text:
                         message_parts.extend([
                             f"Q{question_num}: {question_text}",
