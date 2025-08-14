@@ -18,11 +18,6 @@ class Settings:
     MONGODB_DATABASE: str = os.getenv("MONGODB_DATABASE", "database")
     
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    
-    GCP_BUCKET_NAME: str = os.getenv("GCP_BUCKET_NAME", "moa-audio-storage")
-    GCP_PROJECT_ID: str = os.getenv("GCP_PROJECT_ID", "")
-    GOOGLE_APPLICATION_CREDENTIALS: str = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
     
     ALLOWED_ORIGINS: list = [
         "http://localhost:3000",
