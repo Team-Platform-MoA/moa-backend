@@ -79,6 +79,7 @@ class ErrorMessages:
     INVALID_API_KEY = "OpenAI API 키가 유효하지 않습니다."
     INVALID_GCS_URI = "잘못된 GCS URI 형식: {uri}"
     STT_CONVERSION_FAILED = "음성 변환 실패: {error}"
+    STT_CONVERSION_FAILED_ANSWER = "음성 변환 실패: {error}"
     ONBOARDING_PROCESSING_ERROR = "온보딩 처리 중 오류가 발생했습니다: {error}"
     ONBOARDING_STATUS_ERROR = "온보딩 상태 조회 중 오류가 발생했습니다: {error}"
     HISTORY_QUERY_ERROR = "기록 조회 중 오류가 발생했습니다: {error}"
@@ -92,6 +93,9 @@ class ErrorMessages:
     REPORT_GENERATION_FAILED = "리포트 생성 실패 (전체 프로세스는 계속): {error}"
     REPORT_GENERATION_EXCEPTION = "리포트 생성 예외 상세:"
     REPORT_SAVE_EXCEPTION = "리포트 저장 예외 상세:"
+    REPORT_SERVICE_GENERATION_ERROR = "리포트 생성 오류: {error}"
+    REPORT_SERVICE_GENERATION_EXCEPTION = "리포트 생성 예외 상세:"
+    REPORT_SERVICE_FALLBACK_ERROR = "리포트 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
     
     # 사용자 관련 에러 메시지
     USER_LAST_ACTIVE_UPDATE_FAILED = "사용자 활동 시간 업데이트 실패: {error}"

@@ -6,10 +6,10 @@ from app.models.models import Conversation, User
 from app.services.gcp_storage import get_gcp_storage_service
 from app.services.speech_to_text import get_speech_to_text_service
 from app.services.question import get_question_service
-from app.services.report import ReportService
+from app.services.report import get_report_service
 from app.utils.common import (
     get_korea_now, get_korea_today, format_message, 
-    create_success_response, create_error_response
+    create_success_response, create_error_response, safe_get_error_message
 )
 from app.core.constants import (
     FINAL_QUESTION_NUMBER, Messages, ErrorMessages, 
@@ -26,7 +26,7 @@ class AnswerService:
         self.gcp_storage_service = get_gcp_storage_service()
         self.speech_to_text_service = get_speech_to_text_service()
         self.question_service = get_question_service()
-        self.report_service = ReportService()
+        self.report_service = get_report_service()
     
     async def process_audio_answer(
         self, 
@@ -99,7 +99,7 @@ class AnswerService:
         except HTTPException:
             raise
         except Exception as e:
-            error_msg = str(e) if str(e) else f"{type(e).__name__}: {repr(e)}"
+            error_msg = safe_get_error_message(e)
             logger.error(format_message(Messages.AUDIO_PROCESSING_FAILED, error=error_msg))
             logger.exception(ErrorMessages.AUDIO_PROCESSING_EXCEPTION)  # 스택 트레이스도 로깅
             return create_error_response(
@@ -128,7 +128,6 @@ class AnswerService:
         except Exception as e:
             logger.error(format_message(ErrorMessages.REPORT_SAVE_FAILED, error=e))
             logger.exception(ErrorMessages.REPORT_SAVE_EXCEPTION)
-            raise
     
     async def _ensure_user_exists(self, user_id: str) -> User:
         """사용자가 존재하는지 확인하고, 없으면 오류 발생"""
@@ -215,7 +214,7 @@ class AnswerService:
                     if question_text:
                         message_parts.extend([
                             f"Q{question_num}: {question_text}",
-                            f"A{question_num}: 음성 변환 실패: {str(e)}"
+                            f"A{question_num}: {format_message(ErrorMessages.STT_CONVERSION_FAILED_ANSWER, error=str(e))}"
                         ])
             
             conversation.user_message = '\n'.join(message_parts)

@@ -5,6 +5,8 @@ import logging
 
 from app.external.ai.client import get_ai_client
 from app.prompts.report import EmotionReportPrompt
+from app.core.constants import ErrorMessages
+from app.utils.common import format_message
 
 logger = logging.getLogger(__name__)
 
@@ -53,15 +55,15 @@ class ReportService:
             }
             
         except Exception as e:
-            logger.error("리포트 생성 오류: %s", e)
-            logger.exception("리포트 생성 예외 상세:")
+            logger.error(format_message(ErrorMessages.REPORT_SERVICE_GENERATION_ERROR, error=e))
+            logger.exception(ErrorMessages.REPORT_SERVICE_GENERATION_EXCEPTION)
             
             if not user_id:
                 user_id = str(uuid.uuid4())
             
             return {
                 "user_id": user_id,
-                "error": "리포트 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+                "error": ErrorMessages.REPORT_SERVICE_FALLBACK_ERROR,
                 "generated_at": datetime.now().isoformat()
             }
 

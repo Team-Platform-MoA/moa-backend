@@ -69,3 +69,7 @@ def truncate_text(text: str, max_length: int) -> str:
     if len(text) <= max_length:
         return text
     return text[:max_length] + "..."
+
+def safe_get_error_message(error: Exception) -> str:
+    """안전한 에러 메시지 추출"""
+    return str(error) if str(error) else f"{type(error).__name__}: {repr(error)}"
