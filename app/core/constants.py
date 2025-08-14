@@ -26,6 +26,7 @@ ALLOWED_AUDIO_TYPES = [
     "audio/aac",
     "audio/flac",
     "audio/3gpp",
+    "video/webm"
 ]
 
 # AI 관련 상수
