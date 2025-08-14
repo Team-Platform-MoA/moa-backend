@@ -82,8 +82,8 @@ class ReportService:
 
             summaries = [
                 {
-                    "conversation_id": str(r.id),
-                    "conversation_date": r.conversation_date,
+                    "report_id": str(r.id),
+                    "report_date": r.conversation_date,
                 }
                 for r in rows
             ]
