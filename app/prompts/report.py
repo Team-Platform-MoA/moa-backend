@@ -7,30 +7,29 @@ from app.prompts.base import BasePrompt
 class EmotionReportPrompt(BasePrompt):
     """감정 리포트 생성 프롬프트"""
     
-    def generate(self, **kwargs) -> str:
+    def generate(self, user_answers: str) -> str:
         """
         감정 리포트 생성 프롬프트를 생성합니다.
         
         Args:
-            user_answers (dict): {
-                "memorable_moment": "오늘 부양하면서 가장 기억에 남는 순간",
-                "current_emotion": "지금 이 순간 가장 큰 감정",
-                "message_to_self": "나 자신에게 해주고 싶은 말"
-            }
+            user_answers: Q&A 형식의 사용자 답변 텍스트
+                예: "Q1: 오늘 부양하면서 가장 기억에 남는 순간은 무엇인가요?\n
+                     A1: 오늘 아침에 어머니가 제 이름을 불러주셨어요. 오랜만에 들어서 눈물이 났습니다.\n
+                     Q2: 지금 이 순간 가장 큰 감정은 무엇인가요?\n
+                     A2: 감사함과 동시에 안도감을 느낍니다.\n
+                     Q3: 나 자신에게 해주고 싶은 말은 무엇인가요?\n
+                     A3: 잘하고 있어. 네가 노력하는 만큼 분명히 보답이 올 거야."
             
         Returns:
             str: 완성된 프롬프트
         """
-        user_answers = kwargs.get("user_answers", {})
         
         prompt = f"""
 당신은 치매 환자를 돌보는 가족(부양자)의 감정을 이해하고 위로하는 전문 심리상담가입니다.
 아래 입력된 내용은 치매 부양자가 오늘 하루 겪은 일과 감정을 표현한 것입니다.
 
 ## 치매 부양자의 오늘 하루 회고
-1. 오늘 부양하면서 가장 기억에 남는 순간: {user_answers.get('memorable_moment', '')}
-2. 지금 이 순간 마음속 가장 큰 감정: {user_answers.get('current_emotion', '')}
-3. 나 자신에게 해주고 싶은 말: {user_answers.get('message_to_self', '')}
+{user_answers}
 
 ## 작성 지침
 1. 발화 내용을 분석하여 부양자의 감정을 세밀하게 판별하세요
