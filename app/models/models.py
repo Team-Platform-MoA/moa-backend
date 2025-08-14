@@ -7,6 +7,8 @@ from app.schemas.common import Gender, DementiaStage, FamilyRelationship
 from app.schemas.reports import ConversationReport
 from app.utils.common import get_korea_now
 from app.core.constants import Defaults
+from beanie import Document, PydanticObjectId
+from pydantic import BaseModel, Field
 
 
 class Conversation(Document):
@@ -33,6 +35,10 @@ class Conversation(Document):
         indexes = [
             [("user_id", ASCENDING), ("conversation_date", ASCENDING)]
         ]
+
+class ConversationSummary(BaseModel):
+    id: PydanticObjectId          # Mongo _id
+    conversation_date: str
 
 class User(Document):
     """사용자 정보 모델 (부양자 + 부양받는 가족 정보 포함)"""

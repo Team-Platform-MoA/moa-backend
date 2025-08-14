@@ -1,11 +1,14 @@
 import uuid
 from datetime import datetime
+from fastapi import HTTPException
 from typing import Dict, Optional
 import logging
 
 from app.external.ai.client import get_ai_client
+from app.models import Conversation
+from app.models.models import ConversationSummary
 from app.prompts.report import EmotionReportPrompt
-from app.core.constants import ErrorMessages
+from app.core.constants import ErrorMessages, Defaults
 from app.utils.common import format_message
 
 logger = logging.getLogger(__name__)
@@ -66,6 +69,33 @@ class ReportService:
                 "error": ErrorMessages.REPORT_SERVICE_FALLBACK_ERROR,
                 "generated_at": datetime.now().isoformat()
             }
+
+    async def get_user_reports(self, user_id: str, limit: int = Defaults.HISTORY_LIMIT) -> dict:
+        try:
+            rows: list[ConversationSummary] = (
+                await Conversation.find(Conversation.user_id == user_id)
+                .sort(-Conversation.user_timestamp)
+                .limit(limit)
+                .project(ConversationSummary)
+                .to_list()
+            )
+
+            summaries = [
+                {"conversation_id": str(r.id), "conversation_date": r.conversation_date}
+                for r in rows
+            ]
+
+            return {
+                "user_id": user_id,
+                "total_count": len(rows),
+                "reports": summaries,
+            }
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=format_message(ErrorMessages.HISTORY_QUERY_ERROR, error=str(e)),
+            )
 
 
 # 의존성 주입을 위한 함수
