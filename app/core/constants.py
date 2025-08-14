@@ -7,9 +7,9 @@ FINAL_QUESTION_NUMBER = 3
 
 # 질문 내용
 QUESTIONS = {
-    1: "오늘 부양하면서 어떤 순간이 가장 기억에 남나요?",
-    2: "지금 이 순간 마음속에서 가장 큰 감정은 무엇인가요?",
-    3: "오늘 나 자신에게 해주고 싶은 말이 있다면?"
+    1: "{family_member}의 상태 중에서 오늘 가장 신경 쓰인 부분이 있으셨나요?",
+    2: "오늘 돌봄 과정에서 '아, 이건 정말 나 혼자서는 안 되겠다'라고 느낀 순간이 있으셨나요?",
+    3: "오늘 본인을 위해 챙긴 것이 있다면 어떤 것이었나요? 혹시 챙기지 못했다면 그 이유는 뭐였을까요?"
 }
 
 # 오디오 파일 관련 상수
@@ -59,6 +59,13 @@ class Messages:
     CONVERSATION_CREATED = "새 Conversation 생성: {user_id} - {date} (한국 시간)"
     
     AUDIO_PROCESSING_FAILED = "❌ 오디오 답변 처리 실패: {error}"
+    
+    # 리포트 관련 성공 메시지
+    REPORT_GENERATION_SUCCESS = "리포트 생성 및 저장 완료: user_id={user_id}"
+    REPORT_SAVE_SUCCESS = "리포트 저장 완료 user_id={user_id} ts={timestamp}"
+    
+    # 사용자 관련 메시지
+    USER_LAST_ACTIVE_DEBUG = "사용자 활동 시간 업데이트: user_id={user_id}"
 
 # 에러 메시지 상수
 class ErrorMessages:
@@ -72,12 +79,29 @@ class ErrorMessages:
     INVALID_API_KEY = "OpenAI API 키가 유효하지 않습니다."
     INVALID_GCS_URI = "잘못된 GCS URI 형식: {uri}"
     STT_CONVERSION_FAILED = "음성 변환 실패: {error}"
+    STT_CONVERSION_FAILED_ANSWER = "음성 변환 실패: {error}"
     ONBOARDING_PROCESSING_ERROR = "온보딩 처리 중 오류가 발생했습니다: {error}"
     ONBOARDING_STATUS_ERROR = "온보딩 상태 조회 중 오류가 발생했습니다: {error}"
     HISTORY_QUERY_ERROR = "기록 조회 중 오류가 발생했습니다: {error}"
     AUDIO_ANSWER_PROCESSING_ERROR = "오디오 답변 처리 중 오류가 발생했습니다: {error}"
     ENUM_VALIDATION_MISSING = "데이터 검증 실패: {field_name}이(가) 설정되지 않았습니다."
     ENUM_VALIDATION_INVALID = "데이터 검증 실패: {field_name}이(가) 올바른 Enum 타입이 아닙니다."
+    
+    # 리포트 관련 에러 메시지
+    REPORT_EMPTY_RESPONSE = "리포트 응답이 비어있음"
+    REPORT_SAVE_FAILED = "리포트 저장 실패: {error}"
+    REPORT_GENERATION_FAILED = "리포트 생성 실패 (전체 프로세스는 계속): {error}"
+    REPORT_GENERATION_EXCEPTION = "리포트 생성 예외 상세:"
+    REPORT_SAVE_EXCEPTION = "리포트 저장 예외 상세:"
+    REPORT_SERVICE_GENERATION_ERROR = "리포트 생성 오류: {error}"
+    REPORT_SERVICE_GENERATION_EXCEPTION = "리포트 생성 예외 상세:"
+    REPORT_SERVICE_FALLBACK_ERROR = "리포트 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+    
+    # 사용자 관련 에러 메시지
+    USER_LAST_ACTIVE_UPDATE_FAILED = "사용자 활동 시간 업데이트 실패: {error}"
+    
+    # 오디오 처리 관련 에러 메시지
+    AUDIO_PROCESSING_EXCEPTION = "오디오 답변 처리 중 예외 발생:"
 
 # 디폴트 값 상수
 class Defaults:
@@ -95,3 +119,21 @@ class FileFormats:
     
 # 타임존 상수
 KOREA_TIMEZONE = "Asia/Seoul"
+
+# 가족 호칭 매핑
+FAMILY_MEMBER_TITLES = {
+    ("자녀", "여성"): "어머니",
+    ("자녀", "남성"): "아버지",
+    
+    ("배우자", "여성"): "배우자",
+    ("배우자", "남성"): "배우자",
+    
+    ("며느리/사위", "여성"): "시어머니",
+    ("며느리/사위", "남성"): "시아버지",
+    
+    ("손주", "여성"): "할머니",
+    ("손주", "남성"): "할아버지",
+}
+
+# 기본 호칭
+DEFAULT_FAMILY_TITLE = "가족분"

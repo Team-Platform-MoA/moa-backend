@@ -46,11 +46,12 @@ async def test_gpt_report_generation():
         ai_client = get_ai_client("openai")
         print("✅ GPT 클라이언트 초기화 완료")
 
-        user_answers = {
-            "memorable_moment": "어머니가 제 이름을 잠깐 기억하신 순간",
-            "current_emotion": "희망과 절망 사이에서 갈등하는 마음",
-            "message_to_self": "오늘도 잘 해냈어, 내일도 힘내자"
-        }
+        user_answers = """Q1: 오늘 부양하면서 어떤 순간이 가장 기억에 남나요?
+            A1: 어머니가 제 이름을 잠깐 기억하신 순간이었어요. 오랜만에 들어서 눈물이 났습니다.
+            Q2: 지금 이 순간 마음속에서 가장 큰 감정은 무엇인가요?
+            A2: 희망과 절망 사이에서 갈등하는 마음이에요. 감사함과 동시에 지친 마음도 있어요.
+            Q3: 오늘 나 자신에게 해주고 싶은 말이 있다면?
+            A3: 오늘도 잘 해냈어, 내일도 힘내자. 완벽하지 않아도 괜찮아."""
 
         print("🛠️ 프롬프트 생성 중...")
         report_prompt = EmotionReportPrompt()

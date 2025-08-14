@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict
 from fastapi import HTTPException
+from app.core.constants import Defaults, ErrorMessages, Messages
 from app.models.models import User, Conversation
 from app.schemas.requests import CompleteOnboardingRequest
-from app.schemas.common import Gender, DementiaStage, FamilyRelationship
+from app.utils.common import format_message, get_korea_now
 
 class UserService:
     """사용자 관련 서비스"""
@@ -26,7 +26,7 @@ class UserService:
         if enum_value is None:
             raise HTTPException(
                 status_code=400, 
-                detail=f"데이터 검증 실패: {field_name}이(가) 설정되지 않았습니다."
+                 detail=format_message(ErrorMessages.ENUM_VALIDATION_MISSING, field_name=field_name)
             )
         
         try:
@@ -34,7 +34,7 @@ class UserService:
         except AttributeError:
             raise HTTPException(
                 status_code=400, 
-                detail=f"데이터 검증 실패: {field_name}이(가) 올바른 Enum 타입이 아닙니다."
+               detail=format_message(ErrorMessages.ENUM_VALIDATION_INVALID, field_name=field_name)
             )
 
     async def create_complete_onboarding(self, onboarding_data: CompleteOnboardingRequest) -> Dict:
@@ -48,10 +48,8 @@ class UserService:
             Dict: 온보딩 완료 정보
         """
         try:
-            # 새로운 사용자 ID 생성
             user_id = str(uuid.uuid4())
             
-            # 사용자 정보 생성 (부양자 + 가족 정보 포함)
             user = User(
                 user_id=user_id,
                 name=onboarding_data.user_name,
@@ -59,17 +57,15 @@ class UserService:
                 gender=onboarding_data.user_gender,
                 family_relationship=onboarding_data.family_relationship,
                 daily_care_hours=onboarding_data.daily_care_hours,
-                # 부양받는 가족 정보
                 family_member_nickname=onboarding_data.family_member.nickname,
                 family_member_birth_year=onboarding_data.family_member.birth_year,
                 family_member_gender=onboarding_data.family_member.gender,
                 family_member_dementia_stage=onboarding_data.family_member.dementia_stage,
                 is_onboarded=True,
-                created_at=datetime.now(),
-                last_active=datetime.now()
+                created_at=get_korea_now(),
+                last_active=get_korea_now()
             )
             
-            # 데이터베이스에 저장
             await user.insert()
             
             return {
@@ -86,10 +82,13 @@ class UserService:
                     "dementia_stage": self._safe_enum_value(user.family_member_dementia_stage, "치매 정도")
                 },
                 "is_onboarded": user.is_onboarded,
-                "message": "온보딩이 성공적으로 완료되었습니다."
+                "message": Messages.ONBOARDING_SUCCESS
             }
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"온보딩 처리 중 오류가 발생했습니다: {str(e)}")
+            raise HTTPException(
+                status_code=500, 
+                detail=format_message(ErrorMessages.ONBOARDING_PROCESSING_ERROR, error=str(e))
+            )
 
     async def get_user_onboarding_status(self, user_id: str) -> Dict:
         """
@@ -105,7 +104,7 @@ class UserService:
             user = await User.find_one(User.user_id == user_id)
 
             if not user:
-                raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+                                raise HTTPException(status_code=404, detail=ErrorMessages.USER_NOT_FOUND)
 
             response = {
                 "user_id": user.user_id,
@@ -121,16 +120,19 @@ class UserService:
                     "dementia_stage": self._safe_enum_value(user.family_member_dementia_stage, "치매 정도")
                 },
                 "is_onboarded": user.is_onboarded,
-                "message": "온보딩 완료" if user.is_onboarded else "온보딩 미완료"
+                "message": Messages.ONBOARDING_COMPLETE if user.is_onboarded else Messages.ONBOARDING_INCOMPLETE
             }
             
             return response
         except HTTPException:
             raise
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"온보딩 상태 조회 중 오류가 발생했습니다: {str(e)}")
+            raise HTTPException(
+                status_code=500, 
+                detail=format_message(ErrorMessages.ONBOARDING_STATUS_ERROR, error=str(e))
+            )
     
-    async def get_user_history(self, user_id: str, limit: int = 10) -> Dict:
+    async def get_user_history(self, user_id: str, limit: int = Defaults.HISTORY_LIMIT) -> Dict:
         """
         사용자의 대화 기록 조회
         
@@ -152,19 +154,25 @@ class UserService:
                 "conversations": [
                     {
                         "id": str(conv.id),
+                         "conversation_date": conv.conversation_date,
                         "user_message": conv.user_message,
                         "user_timestamp": conv.user_timestamp,
                         "ai_sentiment": conv.ai_sentiment,
                         "ai_score": conv.ai_score,
                         "ai_comfort_message": conv.ai_comfort_message,
-                        "ai_timestamp": conv.ai_timestamp
+                        "ai_timestamp": conv.ai_timestamp,
+                        "audio_uri_1": conv.audio_uri_1,
+                        "audio_uri_2": conv.audio_uri_2,
+                        "audio_uri_3": conv.audio_uri_3
                     }
                     for conv in conversations
                 ]
             }
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"기록 조회 중 오류가 발생했습니다: {str(e)}")
-
+            raise HTTPException(
+                status_code=500, 
+                detail=format_message(ErrorMessages.HISTORY_QUERY_ERROR, error=str(e))
+            )
 user_service = UserService()
 
 def get_user_service() -> UserService:

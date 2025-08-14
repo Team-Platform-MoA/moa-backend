@@ -2,7 +2,6 @@
 프롬프트 기본 클래스
 """
 from abc import ABC, abstractmethod
-from typing import Dict, Any
 
 
 class BasePrompt(ABC):

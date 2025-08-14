@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
+from app.core.constants import Defaults
 from app.services.user import get_user_service, UserService
 from app.schemas.requests import CompleteOnboardingRequest
 from app.schemas.responses import OnboardingResponse, UserHistoryResponse
@@ -28,7 +29,7 @@ async def get_onboarding_status(
 @router.get("/{user_id}/history", response_model=UserHistoryResponse)
 async def get_user_history(
     user_id: str,
-    limit: int = 10,
+    limit: int = Defaults.HISTORY_LIMIT,
     user_service: UserService = Depends(get_user_service)
 ):
     """
