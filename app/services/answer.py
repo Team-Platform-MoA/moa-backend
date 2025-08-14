@@ -74,6 +74,14 @@ class AnswerService:
                     logger.error(format_message(ErrorMessages.REPORT_GENERATION_FAILED, error=report_error))
                     logger.exception(ErrorMessages.REPORT_GENERATION_EXCEPTION)
 
+                report_obj = None
+                if report_response and report_response.get("report_data"):
+                    try:
+                        report_obj = ConversationReport(**report_response.get("report_data"))
+                    except Exception as e:
+                        logger.error(f"리포트 객체 변환 실패: {e}")
+                        report_obj = None
+
                 return create_success_response(
                     conversation_id=str(conversation.id),
                     question_number=question_number,
@@ -84,7 +92,7 @@ class AnswerService:
                     audio_uri_1=conversation.audio_uri_1,
                     audio_uri_2=conversation.audio_uri_2,
                     audio_uri_3=conversation.audio_uri_3,
-                    report=report_response.get("report_data") if report_response else None
+                    report=report_obj
                 )
             else:
                 return create_success_response(
