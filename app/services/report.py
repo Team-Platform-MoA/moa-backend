@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime
 from typing import Dict
 
-from app.models.models import User
 from app.external.ai.client import get_ai_client
 from app.prompts.report import EmotionReportPrompt
 
