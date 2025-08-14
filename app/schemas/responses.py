@@ -63,8 +63,13 @@ class ConversationItem(BaseModel):
     audio_uri_3: Optional[str] = None
     report: Optional[ConversationReport] = None
 
-class UserHistoryResponse(BaseModel):
-    """사용자 기록 응답"""
+class ReportSummaryResponse(BaseModel):
+    """리포트 간략 조회 응답"""
+    conversation_id: str
+    conversation_date: datetime  # 또는 str
+
+class ReportsListResponse(BaseModel):
+    """리포트 목록 응답"""
     user_id: str
     total_count: int
-    conversations: List[ConversationItem]
+    reports: List[ReportSummaryResponse]

@@ -7,8 +7,6 @@ from app.core.database import connect_to_mongo, close_mongo_connection
 from app.api import users
 from app.api import answers
 
-import app.core.logger
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """애플리케이션 라이프사이클 관리"""
