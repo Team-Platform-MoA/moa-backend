@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 
+from app.schemas.reports import ConversationReport
+
 class FamilyMemberResponse(BaseModel):
     """가족 구성원 응답"""
     nickname: str
@@ -40,9 +42,11 @@ class AudioAnswerResponse(BaseModel):
     audio_uri_3: Optional[str] = None
     
     user_message: Optional[str] = None
+    report: Optional[ConversationReport] = None
     
     user_id: str
     error: Optional[str] = None
+
 
 class ConversationItem(BaseModel):
     """대화 기록 아이템"""
@@ -57,6 +61,7 @@ class ConversationItem(BaseModel):
     audio_uri_1: Optional[str] = None
     audio_uri_2: Optional[str] = None
     audio_uri_3: Optional[str] = None
+    report: Optional[ConversationReport] = None
 
 class UserHistoryResponse(BaseModel):
     """사용자 기록 응답"""

@@ -3,11 +3,17 @@ API 스키마 패키지
 """
 
 from .requests import CompleteOnboardingRequest, FamilyMemberInfo, MessageRequest, WebSocketMessage
-from .responses import OnboardingResponse, AnalysisResponse, ConversationItem, UserHistoryResponse, FamilyMemberResponse
+from .responses import (
+    OnboardingResponse, ConversationItem, UserHistoryResponse, 
+    FamilyMemberResponse, AudioAnswerResponse, AnalysisResponse
+)
 from .common import Gender, DementiaStage, FamilyRelationship
+from .reports import ConversationReport, ConversationReportEmotion
 
 __all__ = [
     "CompleteOnboardingRequest", "FamilyMemberInfo", "MessageRequest", "WebSocketMessage",
-    "OnboardingResponse", "AnalysisResponse", "ConversationItem", "UserHistoryResponse", "FamilyMemberResponse",
-    "Gender", "DementiaStage", "FamilyRelationship"
+    "OnboardingResponse", "ConversationItem", "UserHistoryResponse", 
+    "FamilyMemberResponse", "AudioAnswerResponse", "AnalysisResponse",
+    "Gender", "DementiaStage", "FamilyRelationship",
+    "ConversationReport", "ConversationReportEmotion"
 ] 
