@@ -18,6 +18,12 @@ async def get_questions(
     if user_id:
         from app.models.models import User
         user = await User.find_one(User.user_id == user_id)
+        
+        if user is None:
+            raise HTTPException(
+                status_code=404,
+                detail=format_message(ErrorMessages.USER_NOT_FOUND)
+            )
     
     personalized_questions = {}
     for question_number in range(1, question_service.get_total_questions() + 1):
@@ -45,6 +51,12 @@ async def get_question(
     if user_id:
         from app.models.models import User
         user = await User.find_one(User.user_id == user_id)
+        
+        if user is None:
+            raise HTTPException(
+                status_code=404,
+               detail=format_message(ErrorMessages.USER_NOT_FOUND)
+            )
     
     return {
         "question_number": question_number,
