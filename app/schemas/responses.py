@@ -70,6 +70,5 @@ class ReportSummaryResponse(BaseModel):
 
 class ReportsListResponse(BaseModel):
     """리포트 목록 응답"""
-    user_id: str
     total_count: int
     reports: List[ReportSummaryResponse]

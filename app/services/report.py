@@ -105,7 +105,6 @@ class ReportService:
             ]
 
             return {
-                "user_id": user_id,
                 "total_count": len(rows),
                 "reports": summaries,
             }
