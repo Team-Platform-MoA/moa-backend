@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List, Tuple
 from fastapi import UploadFile, HTTPException
 import logging
 
@@ -6,6 +6,7 @@ from app.models.models import Conversation, User
 from app.services.gcp_storage import get_gcp_storage_service
 from app.services.speech_to_text import get_speech_to_text_service
 from app.services.question import get_question_service
+from app.services.report import ReportService
 from app.utils.common import (
     get_korea_now, get_korea_today, format_message, 
     create_success_response, create_error_response
@@ -25,6 +26,7 @@ class AnswerService:
         self.gcp_storage_service = get_gcp_storage_service()
         self.speech_to_text_service = get_speech_to_text_service()
         self.question_service = get_question_service()
+        self.report_service = ReportService()
     
     async def process_audio_answer(
         self, 
@@ -57,7 +59,19 @@ class AnswerService:
                     Conversation.user_id == user_id,
                     Conversation.conversation_date == get_korea_today()
                 )
-                
+
+                report_response = None
+                try:
+                    report_response = await self.report_service.generate_emotion_report(
+                        user_answers=conversation.user_message, 
+                        user_id=conversation.user_id
+                    )
+                    await self._save_report(conversation, report_response)
+                    logger.info(format_message(Messages.REPORT_GENERATION_SUCCESS, user_id=user_id))
+                except Exception as report_error:
+                    logger.error(format_message(ErrorMessages.REPORT_GENERATION_FAILED, error=report_error))
+                    logger.exception(ErrorMessages.REPORT_GENERATION_EXCEPTION)
+
                 return create_success_response(
                     conversation_id=str(conversation.id),
                     question_number=question_number,
@@ -67,7 +81,8 @@ class AnswerService:
                     user_message=conversation.user_message,
                     audio_uri_1=conversation.audio_uri_1,
                     audio_uri_2=conversation.audio_uri_2,
-                    audio_uri_3=conversation.audio_uri_3
+                    audio_uri_3=conversation.audio_uri_3,
+                    report=report_response.get("report_data") if report_response else None
                 )
             else:
                 return create_success_response(
@@ -84,12 +99,36 @@ class AnswerService:
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(format_message(Messages.AUDIO_PROCESSING_FAILED, error=e))
+            error_msg = str(e) if str(e) else f"{type(e).__name__}: {repr(e)}"
+            logger.error(format_message(Messages.AUDIO_PROCESSING_FAILED, error=error_msg))
+            logger.exception(ErrorMessages.AUDIO_PROCESSING_EXCEPTION)  # 스택 트레이스도 로깅
             return create_error_response(
-                error=str(e),
+                error=error_msg,
                 question_number=question_number,
                 user_id=user_id
             )
+
+    async def _save_report(self, conversation: Conversation, report_response: Dict) -> None:
+        """리포트 데이터를 conversation에 저장"""
+        try:
+            if not report_response:
+                logger.warning(ErrorMessages.REPORT_EMPTY_RESPONSE)
+                return
+                
+            conversation.ai_timestamp = report_response.get("generated_at")
+            conversation.report = report_response.get("report_data") 
+            await conversation.save()
+            logger.info(
+                format_message(
+                    Messages.REPORT_SAVE_SUCCESS,
+                    user_id=conversation.user_id,
+                    timestamp=conversation.ai_timestamp
+                )
+            )
+        except Exception as e:
+            logger.error(format_message(ErrorMessages.REPORT_SAVE_FAILED, error=e))
+            logger.exception(ErrorMessages.REPORT_SAVE_EXCEPTION)
+            raise
     
     async def _ensure_user_exists(self, user_id: str) -> User:
         """사용자가 존재하는지 확인하고, 없으면 오류 발생"""
@@ -189,21 +228,25 @@ class AnswerService:
             logger.error(format_message(Messages.STT_FAILED, error=e))
             raise e
     
-    def _collect_audio_uris(self, conversation: Conversation) -> list[tuple[int, str]]:
+    def _collect_audio_uris(self, conversation: Conversation) -> List[Tuple[int, str]]:
         """Conversation에서 오디오 URI들을 수집"""
         audio_uris = []
-        for i in range(1, 4):
+        for i in range(1, FINAL_QUESTION_NUMBER + 1):
             audio_uri = getattr(conversation, f"audio_uri_{i}")
             if audio_uri:
                 audio_uris.append((i, audio_uri))
         return audio_uris
     
-    async def _update_user_last_active(self, user_id: str):
+    async def _update_user_last_active(self, user_id: str) -> None:
         """사용자 마지막 활동 시간 업데이트"""
-        user = await User.find_one(User.user_id == user_id)
-        if user:
-            user.last_active = get_korea_now()
-            await user.save()
+        try:
+            user = await User.find_one(User.user_id == user_id)
+            if user:
+                user.last_active = get_korea_now()
+                await user.save()
+                logger.debug(format_message(Messages.USER_LAST_ACTIVE_DEBUG, user_id=user_id))
+        except Exception as e:
+            logger.error(format_message(ErrorMessages.USER_LAST_ACTIVE_UPDATE_FAILED, error=e))
 
 
 answer_service = AnswerService()
