@@ -1,7 +1,5 @@
 from datetime import datetime
 from typing import Optional
-from beanie import Document
-from pydantic import Field
 from pymongo import ASCENDING
 from app.schemas.common import Gender, DementiaStage, FamilyRelationship
 from app.schemas.reports import ConversationReport
