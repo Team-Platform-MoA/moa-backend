@@ -9,6 +9,6 @@ router = APIRouter(prefix="/reports", tags=["reports"])
 async def list_reports(
     limit: int = Defaults.HISTORY_LIMIT,
     user_id: str = Header(..., alias="X-User-Id"),
-    report_service: ReportService = Depends(get_report_service())
+    report_service: ReportService = Depends(get_report_service)
 ):
     return await report_service.get_user_reports(user_id, limit)
