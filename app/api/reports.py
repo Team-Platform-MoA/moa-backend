@@ -8,7 +8,7 @@ router = APIRouter(prefix="/reports", tags=["reports"])
 @router.get("/", response_model=ReportsListResponse)
 async def list_reports(
     limit: int = Defaults.HISTORY_LIMIT,
-    user_id: str = Header(..., alias="X-User-Id"),
+    x_user_id: str = Header(..., alias="X-User-Id"),
     report_service: ReportService = Depends(get_report_service)
 ):
-    return await report_service.get_user_reports(user_id, limit)
+    return await report_service.get_user_reports(x_user_id, limit)

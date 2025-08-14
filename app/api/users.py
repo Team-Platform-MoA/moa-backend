@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Header
 from app.services.user import get_user_service, UserService
 from app.schemas.requests import CompleteOnboardingRequest
 from app.schemas.responses import OnboardingResponse
@@ -17,10 +17,10 @@ async def create_onboarding(
 
 @router.get("/{user_id}/onboarding")
 async def get_onboarding_status(
-    user_id: str,
+    x_user_id: str = Header(..., alias="X-User-Id"),
     user_service: UserService = Depends(get_user_service)
 ):
     """
     사용자 온보딩 상태 조회
     """
-    return await user_service.get_user_onboarding_status(user_id)
+    return await user_service.get_user_onboarding_status(x_user_id)
