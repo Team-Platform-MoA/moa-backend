@@ -1,11 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
+import logging
 
 from app.external.ai.client import get_ai_client
 from app.prompts.report import EmotionReportPrompt
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -17,20 +16,25 @@ class ReportService:
         self.ai_client = get_ai_client()
         self.report_prompt = EmotionReportPrompt()
     
-    async def generate_emotion_report(self, user_answers: Dict, user_id: str = None) -> Dict:
+    async def generate_emotion_report(
+        self, 
+        user_answers: str, 
+        user_id: Optional[str] = None
+    ) -> Dict:
         """
         감정 리포트를 생성합니다.
         
         Args:
-            user_answers (dict): {
-                "memorable_moment": "오늘 부양하면서 가장 기억에 남는 순간",
-                "current_emotion": "지금 이 순간 가장 큰 감정",
-                "message_to_self": "나 자신에게 해주고 싶은 말"
-            }
-            user_id (str, optional): 사용자 ID
+            user_answers: Q&A 형식의 사용자 답변 텍스트
+                예: "Q1: 질문\nA1: 답변\nQ2: 질문\nA2: 답변..."
+            user_id: 사용자 ID (선택사항)
             
         Returns:
             Dict: 리포트 생성 결과
+                - user_id: 사용자 ID
+                - report_data: 생성된 리포트 데이터 (성공시)
+                - error: 오류 메시지 (실패시)
+                - generated_at: 생성 시간 (ISO 형식)
         """
         try:
             if not user_id:
@@ -49,7 +53,8 @@ class ReportService:
             }
             
         except Exception as e:
-            logger.error(f"리포트 생성 오류: {e}")
+            logger.error("리포트 생성 오류: %s", e)
+            logger.exception("리포트 생성 예외 상세:")
             
             if not user_id:
                 user_id = str(uuid.uuid4())
