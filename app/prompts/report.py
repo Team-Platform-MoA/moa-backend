@@ -42,12 +42,12 @@ class EmotionReportPrompt(BasePrompt):
 다음 JSON 구조로 정확히 반환해주세요:
 
 {{
-  "emotion_score": "1-100 사이의 종합 감정 점수 (정수)",
+  "emotion_score": 85,
   "daily_summary": "부양자의 하루를 인정하는 따뜻한 한 문장 (반드시 한국어 18글자 이하, 공백 포함)",
   "emotion_analysis": {{
-    "stress": "0-100 사이 값 (정수)",
-    "resilience": "0-100 사이 값 (정수)",
-    "stability": "0-100 사이 값 (정수)"
+    "stress": 60,
+    "resilience": 55,
+    "stability": 50
   }},
   "letter": "4-5문장의 개인화된 편지. 부양자가 표현한 감정을 그대로 인용하며 깊이 공감하고, 치매 부양이 얼마나 힘든 일인지 인정하며 혼자가 아님을 전달. 부양자가 스스로에게 한 말을 반영한 현실적 격려와 함께 오늘 시도해볼 수 있는 구체적인 자기돌봄 action plan 1-2개 제시. 마지막으로 추가 지원 가능함을 부드럽게 안내."
 }}
