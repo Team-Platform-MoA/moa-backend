@@ -66,7 +66,7 @@ class ConversationItem(BaseModel):
 class ReportSummaryResponse(BaseModel):
     """리포트 간략 조회 응답"""
     report_id: str
-    report_date: datetime  # 또는 str
+    report_date: str
 
 class ReportsListResponse(BaseModel):
     """리포트 목록 응답"""

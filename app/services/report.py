@@ -83,7 +83,7 @@ class ReportService:
             summaries = [
                 {
                     "report_id": str(r.id),
-                    "report_date": r.conversation_date,
+                    "report_date": r.conversation_date.strftime("%Y년 %-m월 %-d일"),
                 }
                 for r in rows
             ]
