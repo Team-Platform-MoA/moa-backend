@@ -1,8 +1,10 @@
 from typing import Dict, List, Tuple
+from datetime import datetime
 from fastapi import UploadFile, HTTPException
 import logging
 
 from app.models.models import Conversation, User
+from app.schemas.reports import ConversationReport
 from app.services.gcp_storage import get_gcp_storage_service
 from app.services.speech_to_text import get_speech_to_text_service
 from app.services.question import get_question_service
@@ -114,10 +116,20 @@ class AnswerService:
             if not report_response:
                 logger.warning(ErrorMessages.REPORT_EMPTY_RESPONSE)
                 return
-                
-            conversation.ai_timestamp = report_response.get("generated_at")
-            conversation.report = report_response.get("report_data") 
+            
+            generated_at_str = report_response.get("generated_at")
+            if generated_at_str:
+                conversation.ai_timestamp = datetime.fromisoformat(generated_at_str.replace('Z', '+00:00'))
+            
+            report_data = report_response.get("report_data")
+            if report_data:
+                conversation.report = ConversationReport(**report_data)
+            
             await conversation.save()
+        
+            conversation.is_processed = True
+            await conversation.save()
+            
             logger.info(
                 format_message(
                     Messages.REPORT_SAVE_SUCCESS,
