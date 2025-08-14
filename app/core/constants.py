@@ -59,6 +59,13 @@ class Messages:
     CONVERSATION_CREATED = "새 Conversation 생성: {user_id} - {date} (한국 시간)"
     
     AUDIO_PROCESSING_FAILED = "❌ 오디오 답변 처리 실패: {error}"
+    
+    # 리포트 관련 성공 메시지
+    REPORT_GENERATION_SUCCESS = "리포트 생성 및 저장 완료: user_id={user_id}"
+    REPORT_SAVE_SUCCESS = "리포트 저장 완료 user_id={user_id} ts={timestamp}"
+    
+    # 사용자 관련 메시지
+    USER_LAST_ACTIVE_DEBUG = "사용자 활동 시간 업데이트: user_id={user_id}"
 
 # 에러 메시지 상수
 class ErrorMessages:
@@ -78,6 +85,19 @@ class ErrorMessages:
     AUDIO_ANSWER_PROCESSING_ERROR = "오디오 답변 처리 중 오류가 발생했습니다: {error}"
     ENUM_VALIDATION_MISSING = "데이터 검증 실패: {field_name}이(가) 설정되지 않았습니다."
     ENUM_VALIDATION_INVALID = "데이터 검증 실패: {field_name}이(가) 올바른 Enum 타입이 아닙니다."
+    
+    # 리포트 관련 에러 메시지
+    REPORT_EMPTY_RESPONSE = "리포트 응답이 비어있음"
+    REPORT_SAVE_FAILED = "리포트 저장 실패: {error}"
+    REPORT_GENERATION_FAILED = "리포트 생성 실패 (전체 프로세스는 계속): {error}"
+    REPORT_GENERATION_EXCEPTION = "리포트 생성 예외 상세:"
+    REPORT_SAVE_EXCEPTION = "리포트 저장 예외 상세:"
+    
+    # 사용자 관련 에러 메시지
+    USER_LAST_ACTIVE_UPDATE_FAILED = "사용자 활동 시간 업데이트 실패: {error}"
+    
+    # 오디오 처리 관련 에러 메시지
+    AUDIO_PROCESSING_EXCEPTION = "오디오 답변 처리 중 예외 발생:"
 
 # 디폴트 값 상수
 class Defaults:
