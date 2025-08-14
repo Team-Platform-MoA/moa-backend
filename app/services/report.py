@@ -8,7 +8,7 @@ from app.external.ai.client import get_ai_client
 from app.models import Conversation
 from app.models.models import ConversationSummary
 from app.prompts.report import EmotionReportPrompt
-from app.core.constants import ErrorMessages, Defaults
+from app.core.constants import ErrorMessages
 from app.utils.common import format_message
 
 logger = logging.getLogger(__name__)
@@ -70,12 +70,27 @@ class ReportService:
                 "generated_at": datetime.now().isoformat()
             }
 
-    async def get_user_reports(self, user_id: str, limit: int = Defaults.HISTORY_LIMIT) -> dict:
+    async def get_user_reports(
+            self,
+            user_id: str,
+            year: int,
+            month: int
+    ) -> dict:
         try:
+            start = datetime(year, month, 1)
+            if month == 12:
+                end = datetime(year + 1, 1, 1)
+            else:
+                end = datetime(year, month + 1, 1)
+
+            query = {
+                "user_id": user_id,
+                "user_timestamp": {"$gte": start, "$lt": end}
+            }
+
             rows: list[ConversationSummary] = (
-                await Conversation.find(Conversation.user_id == user_id)
-                .sort(-Conversation.user_timestamp)
-                .limit(limit)
+                await Conversation.find(query)
+                .sort(-Conversation.conversation_date)
                 .project(ConversationSummary)
                 .to_list()
             )
@@ -83,7 +98,8 @@ class ReportService:
             summaries = [
                 {
                     "report_id": str(r.id),
-                    "report_date": r.conversation_date.strftime("%Y년 %-m월 %-d일"),
+                    "report_date": r.conversation_date.strftime("%-m월 %-d일")
+                    if r.conversation_date else ""
                 }
                 for r in rows
             ]
