@@ -37,8 +37,8 @@ class Conversation(Document):
         ]
 
 class ConversationSummary(BaseModel):
-    id: PydanticObjectId          # Mongo _id
-    conversation_date: str
+    id: PydanticObjectId = Field(alias="_id")      # Mongo _id
+    conversation_date: datetime = Field(alias="user_timestamp")
 
 class User(Document):
     """사용자 정보 모델 (부양자 + 부양받는 가족 정보 포함)"""
