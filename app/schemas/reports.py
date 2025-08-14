@@ -13,7 +13,7 @@ class ConversationReportEmotion(BaseModel):
 
 class ConversationReport(BaseModel):
     """사용자 대화에 대한 레포트"""
-    emotionScore: int
-    dailySummary: str
-    emotionAnalysis: ConversationReportEmotion
+    emotion_score: int
+    daily_summary: str
+    emotion_analysis: ConversationReportEmotion
     letter: str

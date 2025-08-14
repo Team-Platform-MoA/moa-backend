@@ -42,9 +42,9 @@ class EmotionReportPrompt(BasePrompt):
 다음 JSON 구조로 정확히 반환해주세요:
 
 {{
-  "emotionScore": "1-100 사이의 종합 감정 점수 (정수)",
-  "dailySummary": "부양자의 하루를 인정하는 따뜻한 한 문장 (반드시 한국어 18글자 이하, 공백 포함)",
-  "emotionAnalysis": {{
+  "emotion_score": "1-100 사이의 종합 감정 점수 (정수)",
+  "daily_summary": "부양자의 하루를 인정하는 따뜻한 한 문장 (반드시 한국어 18글자 이하, 공백 포함)",
+  "emotion_analysis": {{
     "stress": "0-100 사이 값 (정수)",
     "resilience": "0-100 사이 값 (정수)",
     "stability": "0-100 사이 값 (정수)"
@@ -52,7 +52,7 @@ class EmotionReportPrompt(BasePrompt):
   "letter": "4-5문장의 개인화된 편지. 부양자가 표현한 감정을 그대로 인용하며 깊이 공감하고, 치매 부양이 얼마나 힘든 일인지 인정하며 혼자가 아님을 전달. 부양자가 스스로에게 한 말을 반영한 현실적 격려와 함께 오늘 시도해볼 수 있는 구체적인 자기돌봄 action plan 1-2개 제시. 마지막으로 추가 지원 가능함을 부드럽게 안내."
 }}
 
-## ⚠️ dailySummary 작성 규칙 (매우 중요)
+## ⚠️ daily_summary 작성 규칙 (매우 중요)
 - 반드시 한국어 18글자 이하로 작성 (공백 포함)
 - 간결하면서도 따뜻한 인정과 위로를 담을 것
 - 예시:
@@ -63,7 +63,7 @@ class EmotionReportPrompt(BasePrompt):
 
 ## 점수 계산 기준 (치매 부양자 특성 반영)
 
-### emotionScore (종합 감정 점수)
+### emotion_score (종합 감정 점수)
 - 부양자의 전반적 정서 상태를 1-100으로 평가
 - 소진 정도, 희망, 자기돌봄 의지 등을 종합 고려
 - 점수가 높을수록 긍정적 상태
