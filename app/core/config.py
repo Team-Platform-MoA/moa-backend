@@ -18,7 +18,6 @@ class Settings:
     MONGODB_DATABASE: str = os.getenv("MONGODB_DATABASE", "database")
     
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     
     ALLOWED_ORIGINS: list = [
         "http://localhost:3000",

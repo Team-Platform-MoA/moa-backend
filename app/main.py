@@ -4,7 +4,9 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.database import connect_to_mongo, close_mongo_connection
-from app.api import users, websocket
+from app.api import analysis, users, websocket
+
+import app.core.logger
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,6 +32,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    app.include_router(analysis.router, prefix="/api")
     app.include_router(users.router, prefix="/api")
     app.include_router(websocket.router)
 

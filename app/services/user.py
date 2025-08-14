@@ -1,9 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 from fastapi import HTTPException
 from app.models.models import User, Conversation
 from app.schemas.requests import CompleteOnboardingRequest
+from app.schemas.common import Gender, DementiaStage, FamilyRelationship
 
 class UserService:
     """사용자 관련 서비스"""
