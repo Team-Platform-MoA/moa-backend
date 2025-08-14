@@ -123,7 +123,7 @@ class AnswerService:
             
             report_data = report_response.get("report_data")
             if report_data:
-                conversation.report = ConversationReport(**report_data)
+                conversation.report = ConversationReport(**report_response.get("report_data"))
             
             await conversation.save()
         
