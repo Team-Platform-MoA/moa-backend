@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, Depends, Header, UploadFile, File, Form, HTTPException
 
 from app.schemas.responses import AudioAnswerResponse
 from app.services.answer import get_answer_service, AnswerService
@@ -10,14 +10,14 @@ router = APIRouter(prefix="/answers", tags=["answers"])
 
 @router.get("/questions")
 async def get_questions(
-    user_id: str = None,  
+     x_user_id: str = Header(..., alias="X-User-Id"),
     question_service: QuestionService = Depends(get_question_service)
 ):
     """전체 질문 목록 조회"""
     user = None
-    if user_id:
+    if x_user_id:
         from app.models.models import User
-        user = await User.find_one(User.user_id == user_id)
+        user = await User.find_one(User.user_id == x_user_id)
         
         if user is None:
             raise HTTPException(
@@ -37,7 +37,7 @@ async def get_questions(
 @router.get("/questions/{question_number}")
 async def get_question(
     question_number: int,
-    user_id: str = None, 
+   x_user_id: str = Header(..., alias="X-User-Id"),
     question_service: QuestionService = Depends(get_question_service)
 ):
     """특정 질문 조회"""
@@ -48,9 +48,9 @@ async def get_question(
         )
     
     user = None
-    if user_id:
+    if x_user_id:
         from app.models.models import User
-        user = await User.find_one(User.user_id == user_id)
+        user = await User.find_one(User.user_id == x_user_id)
         
         if user is None:
             raise HTTPException(
@@ -67,7 +67,7 @@ async def get_question(
 async def upload_audio_answer(
     audio_file: UploadFile = File(..., description="오디오 파일 (wav, mp3, m4a, webm, ogg 등)"),
     question_number: int = Form(..., description="질문 번호 (1-3)"),
-    user_id: str = Form(..., description="사용자 ID"),
+    x_user_id: str = Header(..., alias="X-User-Id"),
     answer_service: AnswerService = Depends(get_answer_service)
 ):
     """오디오 파일로 답변 제출 (한국 시간 기준)"""
@@ -77,7 +77,7 @@ async def upload_audio_answer(
         result = await answer_service.process_audio_answer(
             audio_file=audio_file,
             question_number=question_number,
-            user_id=user_id
+            user_id=x_user_id
         )
         
         return AudioAnswerResponse(**result)
