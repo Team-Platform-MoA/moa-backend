@@ -17,3 +17,6 @@ uv.lock
 
 # env
 .env
+
+# json
+*.json
