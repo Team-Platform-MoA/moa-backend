@@ -1,5 +1,7 @@
 import uuid
 from datetime import datetime
+from zoneinfo import ZoneInfo
+from app.core.constants import KOREA_TIMEZONE
 from fastapi import HTTPException
 from typing import Dict, Optional
 import logging
@@ -77,11 +79,12 @@ class ReportService:
             month: int
     ) -> dict:
         try:
-            start = datetime(year, month, 1)
+            tz = ZoneInfo(KOREA_TIMEZONE)
+            start = datetime(year, month, 1, tzinfo=tz)
             if month == 12:
-                end = datetime(year + 1, 1, 1)
+                end = datetime(year + 1, 1, 1, tzinfo=tz)
             else:
-                end = datetime(year, month + 1, 1)
+                end = datetime(year, month + 1, 1, tzinfo=tz)
 
             query = {
                 "user_id": user_id,
