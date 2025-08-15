@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Header, Query
 from app.services.report import ReportService, get_report_service
-from app.schemas.responses import ReportsListResponse
+from app.schemas.responses import ReportsListResponse, ReportDetailResponse
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -16,3 +16,11 @@ async def list_reports(
         year=year,
         month=month
     )
+
+@router.get("/{report_id}", response_model=ReportDetailResponse)
+async def get_report_detail(
+    report_id: str,
+    x_user_id: str = Header(..., alias="X-User-Id"),
+    report_service: ReportService = Depends(get_report_service),
+):
+    return await report_service.get_report_detail(user_id=x_user_id, report_id=report_id)
