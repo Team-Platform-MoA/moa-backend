@@ -15,7 +15,7 @@ async def create_onboarding(
     """
     return await user_service.create_complete_onboarding(onboarding_data)
 
-@router.get("/{user_id}/onboarding")
+@router.get("/onboarding")
 async def get_onboarding_status(
     x_user_id: str = Header(..., alias="X-User-Id"),
     user_service: UserService = Depends(get_user_service)
