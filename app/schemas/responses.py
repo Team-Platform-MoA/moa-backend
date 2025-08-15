@@ -1,8 +1,11 @@
+from dataclasses import Field
+
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 
-from app.schemas.reports import ConversationReport
+from app.schemas.reports import ConversationReport, ConversationReportEmotion
+
 
 class FamilyMemberResponse(BaseModel):
     """가족 구성원 응답"""
@@ -72,3 +75,12 @@ class ReportsListResponse(BaseModel):
     """리포트 목록 응답"""
     total_count: int
     reports: List[ReportSummaryResponse]
+
+class ReportDetailResponse(BaseModel):
+    """리포트 상세보기 응답"""
+    report_id: str
+    report_date: str
+    emotion_score: int
+    daily_summary: str
+    emotion_analysis: ConversationReportEmotion
+    letter: str

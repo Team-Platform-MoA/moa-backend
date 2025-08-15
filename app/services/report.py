@@ -5,12 +5,15 @@ from app.core.constants import KOREA_TIMEZONE
 from fastapi import HTTPException
 from typing import Dict, Optional
 import logging
+from beanie import PydanticObjectId
 
 from app.external.ai.client import get_ai_client
 from app.models import Conversation
 from app.models.models import ConversationSummary
 from app.prompts.report import EmotionReportPrompt
 from app.core.constants import ErrorMessages
+from app.schemas import ConversationReportEmotion, ConversationReport
+from app.schemas.responses import ReportDetailResponse
 from app.utils.common import format_message
 
 logger = logging.getLogger(__name__)
@@ -118,6 +121,46 @@ class ReportService:
                 detail=format_message(ErrorMessages.HISTORY_QUERY_ERROR, error=str(e)),
             )
 
+    async def get_report_detail(self, user_id: str, report_id: str) -> ReportDetailResponse:
+        # 1) report_id 검증
+        try:
+            oid = PydanticObjectId(report_id)
+        except Exception:
+            raise HTTPException(status_code=400, detail="invalid report_id")
+
+        # 2) 본인 소유 문서 조회
+        conv = await Conversation.find_one({"_id": oid, "user_id": user_id})
+        if not conv:
+            raise HTTPException(status_code=404, detail="report not found")
+
+        if not conv.report:
+            raise HTTPException(status_code=404, detail="report not ready")
+
+        if isinstance(conv.report, ConversationReport):
+            rep: ConversationReport = conv.report
+        elif isinstance(conv.report, dict):
+            rep = ConversationReport(**conv.report)
+        else:
+            rep = ConversationReport(**conv.report.model_dump())
+
+        if isinstance(rep.emotion_analysis, ConversationReportEmotion):
+            analysis = rep.emotion_analysis
+        elif isinstance(rep.emotion_analysis, dict):
+            analysis = ConversationReportEmotion(**rep.emotion_analysis)
+        else:
+            analysis = ConversationReportEmotion(**rep.emotion_analysis.model_dump())
+
+        date_str = conv.conversation_date
+
+        # 7) 응답
+        return ReportDetailResponse(
+            report_id=str(conv.id),
+            report_date=datetime.strptime(date_str, "%Y-%m-%d").strftime("%-m월 %-d일"),
+            emotion_score=rep.emotion_score,
+            daily_summary=rep.daily_summary,
+            emotion_analysis=analysis,
+            letter=rep.letter,
+        )
 
 # 의존성 주입을 위한 함수
 def get_report_service() -> ReportService:
