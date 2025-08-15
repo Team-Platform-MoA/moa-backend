@@ -1,6 +1,5 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
-from typing import Optional
 from .common import Gender, DementiaStage, FamilyRelationship
 
 class FamilyMemberInfo(BaseModel):

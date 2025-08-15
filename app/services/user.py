@@ -131,48 +131,7 @@ class UserService:
                 status_code=500, 
                 detail=format_message(ErrorMessages.ONBOARDING_STATUS_ERROR, error=str(e))
             )
-    
-    async def get_user_history(self, user_id: str, limit: int = Defaults.HISTORY_LIMIT) -> Dict:
-        """
-        사용자의 대화 기록 조회
-        
-        Args:
-            user_id (str): 사용자 ID
-            limit (int): 조회할 최대 개수
-            
-        Returns:
-            Dict: 사용자 기록
-        """
-        try:
-            conversations = await Conversation.find(
-                Conversation.user_id == user_id
-            ).sort(-Conversation.user_timestamp).limit(limit).to_list()
-            
-            return {
-                "user_id": user_id,
-                "total_count": len(conversations),
-                "conversations": [
-                    {
-                        "id": str(conv.id),
-                         "conversation_date": conv.conversation_date,
-                        "user_message": conv.user_message,
-                        "user_timestamp": conv.user_timestamp,
-                        "ai_sentiment": conv.ai_sentiment,
-                        "ai_score": conv.ai_score,
-                        "ai_comfort_message": conv.ai_comfort_message,
-                        "ai_timestamp": conv.ai_timestamp,
-                        "audio_uri_1": conv.audio_uri_1,
-                        "audio_uri_2": conv.audio_uri_2,
-                        "audio_uri_3": conv.audio_uri_3
-                    }
-                    for conv in conversations
-                ]
-            }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, 
-                detail=format_message(ErrorMessages.HISTORY_QUERY_ERROR, error=str(e))
-            )
+
 user_service = UserService()
 
 def get_user_service() -> UserService:

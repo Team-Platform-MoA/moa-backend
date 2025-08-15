@@ -1,9 +1,14 @@
 import uuid
 from datetime import datetime
+from zoneinfo import ZoneInfo
+from app.core.constants import KOREA_TIMEZONE
+from fastapi import HTTPException
 from typing import Dict, Optional
 import logging
 
 from app.external.ai.client import get_ai_client
+from app.models import Conversation
+from app.models.models import ConversationSummary
 from app.prompts.report import EmotionReportPrompt
 from app.core.constants import ErrorMessages
 from app.utils.common import format_message
@@ -66,6 +71,52 @@ class ReportService:
                 "error": ErrorMessages.REPORT_SERVICE_FALLBACK_ERROR,
                 "generated_at": datetime.now().isoformat()
             }
+
+    async def get_user_reports(
+            self,
+            user_id: str,
+            year: int,
+            month: int
+    ) -> dict:
+        try:
+            tz = ZoneInfo(KOREA_TIMEZONE)
+            start = datetime(year, month, 1, tzinfo=tz)
+            if month == 12:
+                end = datetime(year + 1, 1, 1, tzinfo=tz)
+            else:
+                end = datetime(year, month + 1, 1, tzinfo=tz)
+
+            query = {
+                "user_id": user_id,
+                "user_timestamp": {"$gte": start, "$lt": end}
+            }
+
+            rows: list[ConversationSummary] = (
+                await Conversation.find(query)
+                .sort(-Conversation.conversation_date)
+                .project(ConversationSummary)
+                .to_list()
+            )
+
+            summaries = [
+                {
+                    "report_id": str(r.id),
+                    "report_date": r.conversation_date.strftime("%-m월 %-d일")
+                    if r.conversation_date else ""
+                }
+                for r in rows
+            ]
+
+            return {
+                "total_count": len(rows),
+                "reports": summaries,
+            }
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=format_message(ErrorMessages.HISTORY_QUERY_ERROR, error=str(e)),
+            )
 
 
 # 의존성 주입을 위한 함수

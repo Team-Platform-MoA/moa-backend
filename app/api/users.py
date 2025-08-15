@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, status, Header
-from app.core.constants import Defaults
 from app.services.user import get_user_service, UserService
 from app.schemas.requests import CompleteOnboardingRequest
-from app.schemas.responses import OnboardingResponse, UserHistoryResponse
+from app.schemas.responses import OnboardingResponse
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -25,14 +24,3 @@ async def get_onboarding_status(
     사용자 온보딩 상태 조회
     """
     return await user_service.get_user_onboarding_status(x_user_id)
-
-@router.get("/{user_id}/history", response_model=UserHistoryResponse)
-async def get_user_history(
-    user_id: str,
-    limit: int = Defaults.HISTORY_LIMIT,
-    user_service: UserService = Depends(get_user_service)
-):
-    """
-    사용자 대화 기록 조회
-    """
-    return await user_service.get_user_history(user_id, limit)
