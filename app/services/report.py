@@ -14,7 +14,7 @@ from app.prompts.report import EmotionReportPrompt
 from app.core.constants import ErrorMessages
 from app.schemas import ConversationReportEmotion, ConversationReport
 from app.schemas.responses import ReportDetailResponse
-from app.utils.common import format_message
+from app.utils.common import format_message, format_date_for_display
 
 logger = logging.getLogger(__name__)
 
@@ -104,8 +104,7 @@ class ReportService:
             summaries = [
                 {
                     "report_id": str(r.id),
-                    "report_date": r.conversation_date.strftime("%-m월 %-d일")
-                    if r.conversation_date else ""
+                    "report_date": format_date_for_display(r.conversation_date)
                 }
                 for r in rows
             ]
@@ -155,7 +154,7 @@ class ReportService:
         # 7) 응답
         return ReportDetailResponse(
             report_id=str(conv.id),
-            report_date=datetime.strptime(date_str, "%Y-%m-%d").strftime("%-m월 %-d일"),
+            report_date=format_date_for_display(conv.conversation_date),
             emotion_score=rep.emotion_score,
             daily_summary=rep.daily_summary,
             emotion_analysis=analysis,
