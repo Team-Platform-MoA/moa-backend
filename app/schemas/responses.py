@@ -1,5 +1,3 @@
-from dataclasses import Field
-
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
