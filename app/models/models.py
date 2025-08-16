@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 class Conversation(Document):
     """대화 기록 모델 - 사용자 메시지와 AI 응답을 하나로 관리"""
     user_id: str
-    conversation_date: str
+    conversation_date: datetime = Field(default_factory=get_korea_now)
     is_processed: bool = Defaults.CONVERSATION_PROCESSED_STATUS
     
     user_message: str
@@ -36,7 +36,7 @@ class Conversation(Document):
 
 class ConversationSummary(BaseModel):
     id: PydanticObjectId = Field(alias="_id")      # Mongo _id
-    conversation_date: str = Field(alias="conversation_date")
+    conversation_date: datetime = Field(alias="conversation_date")
 
 class User(Document):
     """사용자 정보 모델 (부양자 + 부양받는 가족 정보 포함)"""
