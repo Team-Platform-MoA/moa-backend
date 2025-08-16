@@ -13,6 +13,31 @@ def get_korea_today() -> str:
     """한국 시간 기준 오늘 날짜 반환 (YYYY-MM-DD 형식)"""
     return get_korea_now().strftime(FileFormats.DATE_FORMAT)
 
+
+def format_date_for_display(date: datetime) -> str:
+    """
+    날짜를 한국어 표시 형식으로 변환합니다.
+    크로스 플랫폼 호환성을 위해 strftime의 플랫폼별 차이를 해결합니다.
+    """
+    if not date:
+        return ""
+
+    # 월과 일에서 앞의 0을 제거
+    month = str(date.month).lstrip('0') or '1'
+    day = str(date.day).lstrip('0') or '1'
+
+    return f"{month}월 {day}일"
+
+
+def format_date_for_database(date: datetime) -> str:
+    """
+    날짜를 데이터베이스 저장용 문자열 형식으로 변환합니다.
+    """
+    if not date:
+        return ""
+
+    return date.strftime("%Y-%m-%d")
+
 def format_message(template: str, **kwargs) -> str:
     """메시지 템플릿 포맷팅"""
     return template.format(**kwargs)
