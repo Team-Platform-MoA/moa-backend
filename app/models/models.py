@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 from pymongo import ASCENDING
 from app.schemas.common import Gender, DementiaStage, FamilyRelationship
 from app.schemas.reports import ConversationReport
-from app.utils.common import get_korea_now
+from app.utils.common import get_korea_now, get_korea_today_date
 from app.core.constants import Defaults
 from beanie import Document, PydanticObjectId
 from pydantic import BaseModel, Field
@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 class Conversation(Document):
     """대화 기록 모델 - 사용자 메시지와 AI 응답을 하나로 관리"""
     user_id: str
-    conversation_date: datetime = Field(default_factory=get_korea_now)
+    conversation_date: date = Field(default_factory=get_korea_today_date)
     is_processed: bool = Defaults.CONVERSATION_PROCESSED_STATUS
     
     user_message: str
@@ -36,7 +36,7 @@ class Conversation(Document):
 
 class ConversationSummary(BaseModel):
     id: PydanticObjectId = Field(alias="_id")      # Mongo _id
-    conversation_date: datetime
+    conversation_date: date
 
 class User(Document):
     """사용자 정보 모델 (부양자 + 부양받는 가족 정보 포함)"""
