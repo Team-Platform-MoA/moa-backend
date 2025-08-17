@@ -4,7 +4,7 @@ from app.schemas.responses import ReportsListResponse, ReportDetailResponse
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
-@router.get("/", response_model=ReportsListResponse)
+@router.get("", response_model=ReportsListResponse)
 async def list_reports(
     year: int = Query(..., description="조회할 연도 (예: 2025)"),
     month: int = Query(..., ge=1, le=12, description="조회할 월 (1~12)"),
