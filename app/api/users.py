@@ -3,7 +3,7 @@ from app.services.user import get_user_service, UserService
 from app.schemas.requests import CompleteOnboardingRequest
 from app.schemas.responses import OnboardingResponse
 
-router = APIRouter(prefix="/api/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["users"])
 
 @router.post("/onboarding", response_model=OnboardingResponse, status_code=status.HTTP_201_CREATED)
 async def create_onboarding(
