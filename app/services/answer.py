@@ -1,5 +1,4 @@
 from typing import Dict, List, Tuple
-from datetime import datetime
 from fastapi import UploadFile, HTTPException
 import logging
 
@@ -10,7 +9,7 @@ from app.services.speech_to_text import get_speech_to_text_service
 from app.services.question import get_question_service
 from app.services.report import get_report_service
 from app.utils.common import (
-    get_korea_now, get_korea_today, format_message,
+    get_korea_now, format_message,
     create_success_response, create_error_response, safe_get_error_message, get_korea_today_date
 )
 from app.core.constants import (
