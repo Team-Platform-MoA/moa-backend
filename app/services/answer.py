@@ -49,31 +49,17 @@ class AnswerService:
             
             user = await self._ensure_user_exists(user_id)
             question_text = self.question_service.get_question_text(question_number, user)
-            
             gcs_uri = await self.gcp_storage_service.upload_audio_file(audio_file, user_id)
             conversation = await self._find_or_create_conversation(user_id)
+            # 디버깅: 이미 확보한 인스턴스 확인
+            logger.debug(f"최종 처리 대상 conversation 확인: id={conversation.id}, date={conversation.conversation_date}")
+
             await self._save_audio_uri(conversation, question_number, gcs_uri)
             
             if question_number == FINAL_QUESTION_NUMBER:
                 await self._process_all_audio_to_text(conversation, user)
-                
-                # 디버깅을 위한 로그 추가
-                today = get_korea_today_date()
-                logger.info(f"오늘 날짜: {today}, 타입: {type(today)}")
-                
-                conversation = await Conversation.find_one(
-                    Conversation.user_id == user_id,
-                    Conversation.conversation_date == today
-                )
-                
-                # 디버깅을 위한 로그 추가
-                logger.info(f"찾은 conversation: {conversation}")
-                if conversation:
-                    logger.info(f"conversation ID: {conversation.id}, user_message: {conversation.user_message}")
-                else:
-                    logger.warning(f"Conversation을 찾을 수 없음: user_id={user_id}, date={today}")
-
                 report_response = None
+
                 try:
                     report_response = await self.report_service.generate_emotion_report(
                         user_answers=conversation.user_message, 
