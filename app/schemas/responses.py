@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional
 
 from app.schemas.reports import ConversationReport, ConversationReportEmotion
@@ -52,7 +52,7 @@ class AudioAnswerResponse(BaseModel):
 class ConversationItem(BaseModel):
     """대화 기록 아이템"""
     id: str
-    conversation_date: str
+    conversation_date: date
     user_message: str
     user_timestamp: datetime
     ai_sentiment: str

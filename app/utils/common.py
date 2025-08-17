@@ -1,7 +1,7 @@
 """공통 유틸리티 함수들"""
 
-from datetime import datetime
-from typing import Dict, Any
+from datetime import datetime, date
+from typing import Dict, Any, Union
 from zoneinfo import ZoneInfo
 from app.core.constants import KOREA_TIMEZONE, FileFormats
 
@@ -13,30 +13,34 @@ def get_korea_today() -> str:
     """한국 시간 기준 오늘 날짜 반환 (YYYY-MM-DD 형식)"""
     return get_korea_now().strftime(FileFormats.DATE_FORMAT)
 
+def get_korea_today_date() -> date:
+    """한국 시간 기준 오늘 날짜 반환 (date 타입)"""
+    return get_korea_now().date()
 
-def format_date_for_display(date: datetime) -> str:
+
+def format_date_for_display(date_obj: Union[datetime, date]) -> str:
     """
     날짜를 한국어 표시 형식으로 변환합니다.
     크로스 플랫폼 호환성을 위해 strftime의 플랫폼별 차이를 해결합니다.
     """
-    if not date:
+    if not date_obj:
         return ""
 
     # 월과 일에서 앞의 0을 제거
-    month = str(date.month).lstrip('0') or '1'
-    day = str(date.day).lstrip('0') or '1'
+    month = str(date_obj.month).lstrip('0') or '1'
+    day = str(date_obj.day).lstrip('0') or '1'
 
     return f"{month}월 {day}일"
 
 
-def format_date_for_database(date: datetime) -> str:
+def format_date_for_database(date_obj: Union[datetime, date]) -> str:
     """
     날짜를 데이터베이스 저장용 문자열 형식으로 변환합니다.
     """
-    if not date:
+    if not date_obj:
         return ""
 
-    return date.strftime("%Y-%m-%d")
+    return date_obj.strftime("%Y-%m-%d")
 
 def format_message(template: str, **kwargs) -> str:
     """메시지 템플릿 포맷팅"""
