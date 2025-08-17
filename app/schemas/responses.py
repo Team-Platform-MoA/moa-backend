@@ -78,7 +78,8 @@ class ReportDetailResponse(BaseModel):
     """리포트 상세보기 응답"""
     report_id: str
     report_date: str
+    actions: str
+    letter: str
     emotion_score: int
     daily_summary: str
     emotion_analysis: ConversationReportEmotion
-    letter: str
