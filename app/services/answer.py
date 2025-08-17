@@ -10,8 +10,8 @@ from app.services.speech_to_text import get_speech_to_text_service
 from app.services.question import get_question_service
 from app.services.report import get_report_service
 from app.utils.common import (
-    get_korea_now, get_korea_today, format_message, 
-    create_success_response, create_error_response, safe_get_error_message
+    get_korea_now, get_korea_today, format_message,
+    create_success_response, create_error_response, safe_get_error_message, get_korea_today_date
 )
 from app.core.constants import (
     FINAL_QUESTION_NUMBER, Messages, ErrorMessages, 
@@ -57,10 +57,21 @@ class AnswerService:
             if question_number == FINAL_QUESTION_NUMBER:
                 await self._process_all_audio_to_text(conversation, user)
                 
+                # 디버깅을 위한 로그 추가
+                today = get_korea_today_date()
+                logger.info(f"오늘 날짜: {today}, 타입: {type(today)}")
+                
                 conversation = await Conversation.find_one(
                     Conversation.user_id == user_id,
-                    Conversation.conversation_date == get_korea_today()
+                    Conversation.conversation_date == today
                 )
+                
+                # 디버깅을 위한 로그 추가
+                logger.info(f"찾은 conversation: {conversation}")
+                if conversation:
+                    logger.info(f"conversation ID: {conversation.id}, user_message: {conversation.user_message}")
+                else:
+                    logger.warning(f"Conversation을 찾을 수 없음: user_id={user_id}, date={today}")
 
                 report_response = None
                 try:
@@ -118,36 +129,26 @@ class AnswerService:
                 user_id=user_id
             )
 
-    async def _save_report(self, conversation: Conversation, report_response: Dict) -> None:
-        """리포트 데이터를 conversation에 저장"""
+    async def _save_report(self, conversation: Conversation, report_response: Dict):
+        """리포트 저장"""
         try:
-            if not report_response:
-                logger.warning(ErrorMessages.REPORT_EMPTY_RESPONSE)
-                return
-            
-            generated_at_str = report_response.get("generated_at")
-            if generated_at_str:
-                conversation.ai_timestamp = datetime.fromisoformat(generated_at_str.replace('Z', '+00:00'))
-            
-            report_data = report_response.get("report_data")
-            if report_data:
-                conversation.report = ConversationReport(**report_response.get("report_data"))
-            
-            await conversation.save()
-        
-            conversation.is_processed = True
-            await conversation.save()
-            
-            logger.info(
-                format_message(
-                    Messages.REPORT_SAVE_SUCCESS,
-                    user_id=conversation.user_id,
-                    timestamp=conversation.ai_timestamp
-                )
-            )
+            if report_response and report_response.get("report_data"):
+                report_data = report_response.get("report_data")
+
+                if "actions" in report_data and isinstance(report_data["actions"], str):
+                    pass
+                else:
+                    report_data["actions"] = \
+                        "오늘 하루를 마무리하며 자신을 돌보는 시간을 가져보세요. 10분 정도의 짧은 시간을 내어 깊게 숨을 들이마시고 내쉬는 호흡 운동을 해보세요. 그 다음, 따뜻한 차 한 잔을 마시며 자신에게 '오늘도 정말 수고했어'라고 말해주세요."
+
+                report_obj = ConversationReport(**report_data)
+                conversation.report = report_obj
+                await conversation.save()
+                logger.info("리포트 저장 완료")
+
         except Exception as e:
-            logger.error(format_message(ErrorMessages.REPORT_SAVE_FAILED, error=e))
-            logger.exception(ErrorMessages.REPORT_SAVE_EXCEPTION)
+            logger.error(f"리포트 저장 실패: {e}")
+            raise e
     
     async def _ensure_user_exists(self, user_id: str) -> User:
         """사용자가 존재하는지 확인하고, 없으면 오류 발생"""
@@ -161,7 +162,7 @@ class AnswerService:
     
     async def _find_or_create_conversation(self, user_id: str) -> Conversation:
         """사용자의 오늘 날짜 Conversation 찾기 또는 새로 생성"""
-        today = get_korea_today()
+        today = get_korea_today_date()
         
         conversation = await Conversation.find_one(
             Conversation.user_id == user_id,
