@@ -63,11 +63,11 @@ class OpenAIClient(AIClient):
         response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that responds in JSON format when requested."},
+                {"role": "system", "content": "You are a helpful assistant that responds in JSON format when requested. Always return complete, valid JSON."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=1000
+            max_tokens=2000
         )
         print("🟢 OpenAI 응답 수신 완료")
         return response

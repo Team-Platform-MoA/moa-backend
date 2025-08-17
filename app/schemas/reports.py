@@ -13,7 +13,8 @@ class ConversationReportEmotion(BaseModel):
 
 class ConversationReport(BaseModel):
     """사용자 대화에 대한 레포트"""
+    letter: str
+    actions: str
     emotion_score: int = Field(..., ge=1, le=100, description="종합 감정 점수 (1-100)")
     daily_summary: str 
     emotion_analysis: ConversationReportEmotion
-    letter: str

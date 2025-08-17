@@ -1,5 +1,4 @@
 from typing import Dict, List, Tuple
-from datetime import datetime
 from fastapi import UploadFile, HTTPException
 import logging
 
@@ -10,8 +9,8 @@ from app.services.speech_to_text import get_speech_to_text_service
 from app.services.question import get_question_service
 from app.services.report import get_report_service
 from app.utils.common import (
-    get_korea_now, get_korea_today, format_message, 
-    create_success_response, create_error_response, safe_get_error_message
+    get_korea_now, format_message,
+    create_success_response, create_error_response, safe_get_error_message, get_korea_today_date
 )
 from app.core.constants import (
     FINAL_QUESTION_NUMBER, Messages, ErrorMessages, 
@@ -49,20 +48,17 @@ class AnswerService:
             
             user = await self._ensure_user_exists(user_id)
             question_text = self.question_service.get_question_text(question_number, user)
-            
             gcs_uri = await self.gcp_storage_service.upload_audio_file(audio_file, user_id)
             conversation = await self._find_or_create_conversation(user_id)
+            # 디버깅: 이미 확보한 인스턴스 확인
+            logger.debug(f"최종 처리 대상 conversation 확인: id={conversation.id}, date={conversation.conversation_date}")
+
             await self._save_audio_uri(conversation, question_number, gcs_uri)
             
             if question_number == FINAL_QUESTION_NUMBER:
                 await self._process_all_audio_to_text(conversation, user)
-                
-                conversation = await Conversation.find_one(
-                    Conversation.user_id == user_id,
-                    Conversation.conversation_date == get_korea_today()
-                )
-
                 report_response = None
+
                 try:
                     report_response = await self.report_service.generate_emotion_report(
                         user_answers=conversation.user_message, 
@@ -118,36 +114,36 @@ class AnswerService:
                 user_id=user_id
             )
 
-    async def _save_report(self, conversation: Conversation, report_response: Dict) -> None:
-        """리포트 데이터를 conversation에 저장"""
+    async def _save_report(self, conversation: Conversation, report_response: Dict):
+        """리포트 저장"""
         try:
-            if not report_response:
-                logger.warning(ErrorMessages.REPORT_EMPTY_RESPONSE)
-                return
-            
-            generated_at_str = report_response.get("generated_at")
-            if generated_at_str:
-                conversation.ai_timestamp = datetime.fromisoformat(generated_at_str.replace('Z', '+00:00'))
-            
-            report_data = report_response.get("report_data")
-            if report_data:
-                conversation.report = ConversationReport(**report_response.get("report_data"))
-            
-            await conversation.save()
-        
-            conversation.is_processed = True
-            await conversation.save()
-            
-            logger.info(
-                format_message(
-                    Messages.REPORT_SAVE_SUCCESS,
-                    user_id=conversation.user_id,
-                    timestamp=conversation.ai_timestamp
-                )
-            )
+            if report_response and report_response.get("report_data"):
+                report_data = report_response.get("report_data")
+
+                if report_response and report_response.get("report_data"):
+                    report_data = report_response.get("report_data")
+
+                if not isinstance(report_data.get("actions"), str) or not report_data["actions"].strip():
+                    report_data["actions"] = (
+                        "오늘 하루를 마무리하며 자신을 돌보는 시간을 가져보세요. "
+                        "10분 정도 깊게 호흡하고 따뜻한 차 한 잔을 마시며 "
+                        "스스로에게 '오늘도 정말 수고했어'라고 말해보세요."
+                    )
+
+                if not isinstance(report_data.get("letter"), str) or not report_data["letter"].strip():
+                    report_data["letter"] = (
+                        "오늘도 최선을 다한 당신, 정말 수고하셨어요. "
+                        "스스로를 조금 더 따뜻하게 돌보는 시간을 가져보길 바라요."
+                    )
+
+                report_obj = ConversationReport(**report_data)
+                conversation.report = report_obj
+                await conversation.save()
+                logger.info("리포트 저장 완료")
+
         except Exception as e:
-            logger.error(format_message(ErrorMessages.REPORT_SAVE_FAILED, error=e))
-            logger.exception(ErrorMessages.REPORT_SAVE_EXCEPTION)
+            logger.error(f"리포트 저장 실패: {e}")
+            raise e
     
     async def _ensure_user_exists(self, user_id: str) -> User:
         """사용자가 존재하는지 확인하고, 없으면 오류 발생"""
@@ -161,7 +157,7 @@ class AnswerService:
     
     async def _find_or_create_conversation(self, user_id: str) -> Conversation:
         """사용자의 오늘 날짜 Conversation 찾기 또는 새로 생성"""
-        today = get_korea_today()
+        today = get_korea_today_date()
         
         conversation = await Conversation.find_one(
             Conversation.user_id == user_id,

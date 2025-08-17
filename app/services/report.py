@@ -154,11 +154,12 @@ class ReportService:
         # 7) 응답
         return ReportDetailResponse(
             report_id=str(conv.id),
-            report_date=format_date_for_display(conv.conversation_date),
-            emotion_score=rep.emotion_score,
-            daily_summary=rep.daily_summary,
-            emotion_analysis=analysis,
-            letter=rep.letter,
+            report_date = format_date_for_display(conv.conversation_date),
+            actions = rep.actions,
+            letter = rep.letter,
+            emotion_score = rep.emotion_score,
+            daily_summary = rep.daily_summary,
+            emotion_analysis = analysis,
         )
 
 # 의존성 주입을 위한 함수
