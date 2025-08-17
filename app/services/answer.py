@@ -120,11 +120,21 @@ class AnswerService:
             if report_response and report_response.get("report_data"):
                 report_data = report_response.get("report_data")
 
-                if "actions" in report_data and isinstance(report_data["actions"], str):
-                    pass
-                else:
-                    report_data["actions"] = \
-                        "오늘 하루를 마무리하며 자신을 돌보는 시간을 가져보세요. 10분 정도의 짧은 시간을 내어 깊게 숨을 들이마시고 내쉬는 호흡 운동을 해보세요. 그 다음, 따뜻한 차 한 잔을 마시며 자신에게 '오늘도 정말 수고했어'라고 말해주세요."
+                if report_response and report_response.get("report_data"):
+                    report_data = report_response.get("report_data")
+
+                if not isinstance(report_data.get("actions"), str) or not report_data["actions"].strip():
+                    report_data["actions"] = (
+                        "오늘 하루를 마무리하며 자신을 돌보는 시간을 가져보세요. "
+                        "10분 정도 깊게 호흡하고 따뜻한 차 한 잔을 마시며 "
+                        "스스로에게 '오늘도 정말 수고했어'라고 말해보세요."
+                    )
+
+                if not isinstance(report_data.get("letter"), str) or not report_data["letter"].strip():
+                    report_data["letter"] = (
+                        "오늘도 최선을 다한 당신, 정말 수고하셨어요. "
+                        "스스로를 조금 더 따뜻하게 돌보는 시간을 가져보길 바라요."
+                    )
 
                 report_obj = ConversationReport(**report_data)
                 conversation.report = report_obj
