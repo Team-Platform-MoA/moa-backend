@@ -80,7 +80,7 @@ class EmotionReportPrompt(BasePrompt):
           * 0-40: 감정 기복 심함, 통제 어려움
         """)
 
-        prompt = PROMPT_TPL.substitute(user_answers=user_answers)
+        prompt = PROMPT_TPL.safe_substitute(user_answers=user_answers)
         return prompt
     
     def get_expected_format(self) -> str:
